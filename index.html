@@ -1,0 +1,152 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Arzisoft — Coming Soon</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --bg: #050810; --accent: #00ffe0; --accent2: #0077ff; --text: #c8d8e8; --dim: #3a4a5a; --glow: 0 0 12px #00ffe088, 0 0 30px #00ffe033; }
+    html, body { width: 100%; height: 100%; background: var(--bg); color: var(--text); font-family: 'Share Tech Mono', monospace; overflow: hidden; }
+    #matrix { position: fixed; inset: 0; z-index: 0; opacity: 0.18; }
+    .grid-overlay { position: fixed; inset: 0; z-index: 1; background-image: linear-gradient(rgba(0,255,224,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,224,0.04) 1px, transparent 1px); background-size: 40px 40px; pointer-events: none; }
+    .vignette { position: fixed; inset: 0; z-index: 2; background: radial-gradient(ellipse at center, transparent 30%, #050810cc 100%); pointer-events: none; }
+    .container { position: relative; z-index: 10; width: 100%; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; }
+    .status-bar { position: fixed; top: 0; left: 0; right: 0; padding: 0.6rem 2rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.65rem; color: var(--dim); border-bottom: 1px solid #0d1a2a; z-index: 20; }
+    .status-bar .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); display: inline-block; margin-right: 0.4rem; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+    .logo-block { margin-bottom: 1.6rem; text-align: center; }
+    .logo-tag { font-size: 0.6rem; color: var(--accent); letter-spacing: 0.3em; text-transform: uppercase; margin-bottom: 0.4rem; opacity: 0; animation: fadeUp 0.8s 0.2s forwards; }
+    .logo { font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: clamp(2.4rem, 6vw, 4.5rem); letter-spacing: 0.08em; background: linear-gradient(135deg, #ffffff 30%, var(--accent) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; filter: drop-shadow(0 0 20px #00ffe055); opacity: 0; animation: fadeUp 0.8s 0.4s forwards; }
+    .logo-sub { font-size: 0.72rem; color: var(--dim); letter-spacing: 0.2em; margin-top: 0.3rem; opacity: 0; animation: fadeUp 0.8s 0.6s forwards; }
+    .divider { width: 240px; height: 1px; background: linear-gradient(90deg, transparent, var(--accent), transparent); margin: 1.4rem auto; opacity: 0; animation: fadeIn 1s 0.9s forwards; }
+    .headline { font-family: 'Orbitron', sans-serif; font-size: clamp(0.75rem, 2vw, 1rem); font-weight: 400; color: var(--text); letter-spacing: 0.15em; text-align: center; margin-bottom: 2.4rem; opacity: 0; animation: fadeUp 0.8s 1s forwards; }
+    .headline span { color: var(--accent); }
+    .countdown { display: flex; gap: clamp(0.8rem, 3vw, 2rem); margin-bottom: 2.4rem; opacity: 0; animation: fadeUp 0.8s 1.2s forwards; }
+    .unit { display: flex; flex-direction: column; align-items: center; gap: 0.4rem; }
+    .unit-box { position: relative; width: clamp(64px, 12vw, 96px); height: clamp(64px, 12vw, 96px); border: 1px solid #1a2a3a; background: #080e1a; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    .unit-box::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, #00ffe010 0%, transparent 60%); }
+    .unit-box::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--accent), transparent); }
+    .unit-num { font-family: 'Orbitron', sans-serif; font-size: clamp(1.4rem, 4vw, 2.6rem); font-weight: 700; color: #fff; text-shadow: var(--glow); position: relative; z-index: 1; }
+    .unit-label { font-size: 0.55rem; letter-spacing: 0.25em; color: var(--dim); text-transform: uppercase; }
+    .sep { font-family: 'Orbitron', sans-serif; font-size: clamp(1.2rem, 3vw, 2rem); color: var(--accent); align-self: center; margin-top: -1rem; opacity: 0.5; animation: blink 1s step-start infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
+    .progress-wrap { width: min(480px, 90vw); margin-bottom: 2rem; opacity: 0; animation: fadeUp 0.8s 1.4s forwards; }
+    .progress-meta { display: flex; justify-content: space-between; font-size: 0.6rem; color: var(--dim); margin-bottom: 0.4rem; }
+    .progress-bar { width: 100%; height: 2px; background: #0d1a2a; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent2), var(--accent)); box-shadow: 0 0 8px var(--accent); transition: width 1s ease; }
+    .boot-log { font-size: 0.6rem; color: #2a3a4a; text-align: center; line-height: 1.8; opacity: 0; animation: fadeIn 1s 1.6s forwards; max-width: 400px; }
+    .boot-log .ok { color: var(--accent); }
+    .boot-log .warn { color: #ff9900; }
+    .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; padding: 0.7rem 2rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.6rem; color: var(--dim); border-top: 1px solid #0d1a2a; z-index: 20; }
+    .bottom-bar a { color: var(--accent); text-decoration: none; }
+    .corner { position: fixed; width: 20px; height: 20px; z-index: 20; }
+    .corner::before, .corner::after { content: ''; position: absolute; background: var(--accent); }
+    .corner::before { width: 100%; height: 1px; top: 0; left: 0; }
+    .corner::after { width: 1px; height: 100%; top: 0; left: 0; }
+    .corner.tl { top: 2.4rem; left: 1rem; }
+    .corner.tr { top: 2.4rem; right: 1rem; transform: scaleX(-1); }
+    .corner.bl { bottom: 2.4rem; left: 1rem; transform: scaleY(-1); }
+    .corner.br { bottom: 2.4rem; right: 1rem; transform: scale(-1); }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .flip { animation: flip 0.3s ease; }
+    @keyframes flip { 0% { transform: translateY(-6px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+  </style>
+</head>
+<body>
+<canvas id="matrix"></canvas>
+<div class="grid-overlay"></div>
+<div class="vignette"></div>
+<div class="corner tl"></div>
+<div class="corner tr"></div>
+<div class="corner bl"></div>
+<div class="corner br"></div>
+<div class="status-bar">
+  <span><span class="dot"></span>SYSTEM ONLINE // ARZISOFT v2.0</span>
+  <span id="clock">--:--:--</span>
+  <span>BUILD_2026 // INITIALIZING</span>
+</div>
+<div class="container">
+  <div class="logo-block">
+    <div class="logo-tag">// Arzisoft Technologies</div>
+    <div class="logo">ARZISOFT</div>
+    <div class="logo-sub">Innovative Software Solutions</div>
+  </div>
+  <div class="divider"></div>
+  <div class="headline">Something <span>powerful</span> is being built.<br>We will be live soon.</div>
+  <div class="countdown">
+    <div class="unit"><div class="unit-box"><span class="unit-num" id="cd-d">00</span></div><span class="unit-label">Days</span></div>
+    <div class="sep">:</div>
+    <div class="unit"><div class="unit-box"><span class="unit-num" id="cd-h">00</span></div><span class="unit-label">Hours</span></div>
+    <div class="sep">:</div>
+    <div class="unit"><div class="unit-box"><span class="unit-num" id="cd-m">00</span></div><span class="unit-label">Minutes</span></div>
+    <div class="sep">:</div>
+    <div class="unit"><div class="unit-box"><span class="unit-num" id="cd-s">00</span></div><span class="unit-label">Seconds</span></div>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-meta"><span>LAUNCH_PROGRESS</span><span id="pct">0%</span></div>
+    <div class="progress-bar"><div class="progress-fill" id="pbar" style="width:0%"></div></div>
+  </div>
+  <div class="boot-log">
+    <span class="ok">[OK]</span> Core systems online<br>
+    <span class="ok">[OK]</span> Security modules loaded<br>
+    <span class="warn">[  ]</span> Frontend deployment ... pending<br>
+    <span class="warn">[  ]</span> API gateway ... configuring<br>
+  </div>
+</div>
+<div class="bottom-bar">
+  <span>© 2026 Arzisoft</span>
+  <span><a href="mailto:contact@arzisoft.com">contact@arzisoft.com</a></span>
+  <span>All rights reserved</span>
+</div>
+<script>
+  const canvas = document.getElementById('matrix');
+  const ctx = canvas.getContext('2d');
+  let cols, drops;
+  function initMatrix() {
+    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+    cols = Math.floor(canvas.width / 13); drops = Array(cols).fill(1);
+  }
+  const chars = 'アイウエオカキクケコ01{}[]<>()ARZISOFT';
+  function drawMatrix() {
+    ctx.fillStyle = 'rgba(5,8,16,0.05)'; ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.font = '13px Share Tech Mono';
+    for (let i = 0; i < drops.length; i++) {
+      const ch = chars[Math.floor(Math.random()*chars.length)];
+      ctx.fillStyle = drops[i]*13 < 30 ? '#00ffe0' : 'rgba(0,180,120,0.4)';
+      ctx.fillText(ch, i*13, drops[i]*13);
+      if (drops[i]*13 > canvas.height && Math.random() > 0.975) drops[i] = 0;
+      drops[i]++;
+    }
+  }
+  initMatrix(); window.addEventListener('resize', initMatrix); setInterval(drawMatrix, 40);
+  function updateClock() {
+    const n = new Date();
+    document.getElementById('clock').textContent = [n.getHours(),n.getMinutes(),n.getSeconds()].map(x=>String(x).padStart(2,'0')).join(':');
+  }
+  setInterval(updateClock, 1000); updateClock();
+  const LAUNCH = new Date('2026-06-29T00:00:00');
+  const START = new Date('2026-03-29T00:00:00');
+  const TOTAL = LAUNCH - START;
+  function pad(n){ return String(n).padStart(2,'0'); }
+  function updateCountdown() {
+    const diff = Math.max(0, LAUNCH - new Date());
+    const elapsed = Math.max(0, new Date() - START);
+    const pct = Math.min(100, Math.round((elapsed/TOTAL)*100));
+    const d = Math.floor(diff/86400000);
+    const h = Math.floor((diff%86400000)/3600000);
+    const m = Math.floor((diff%3600000)/60000);
+    const s = Math.floor((diff%60000)/1000);
+    document.getElementById('cd-d').textContent = pad(d);
+    document.getElementById('cd-h').textContent = pad(h);
+    document.getElementById('cd-m').textContent = pad(m);
+    document.getElementById('cd-s').textContent = pad(s);
+    document.getElementById('pct').textContent = pct+'%';
+    document.getElementById('pbar').style.width = pct+'%';
+  }
+  setInterval(updateCountdown, 1000); updateCountdown();
+</script>
+</body>
+</html>
