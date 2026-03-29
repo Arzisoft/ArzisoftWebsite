@@ -112,7 +112,7 @@
   const chars = 'アイウエオカキクケコ01{}[]<>()ARZISOFT';
   function drawMatrix() {
     ctx.fillStyle = 'rgba(5,8,16,0.05)'; ctx.fillRect(0,0,canvas.width,canvas.height);
-    ctx.font = '20px Share Tech Mono';
+    ctx.font = '50px Share Tech Mono';
     for (let i = 0; i < drops.length; i++) {
       const ch = chars[Math.floor(Math.random()*chars.length)];
       ctx.fillStyle = drops[i]*20 < 40 ? '#00ffe0' : 'rgba(0,180,120,0.4)';
