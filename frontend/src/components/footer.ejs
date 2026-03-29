@@ -24,16 +24,16 @@
       <div class="footer__col">
         <span class="footer__heading">Connect</span>
         <div class="footer__socials">
-          <a href="#" class="footer__social" aria-label="Twitter">
+          <a href="#" class="footer__social" aria-label="Twitter"><!-- TODO: add Twitter URL -->
             <i data-lucide="twitter" style="width:17px;height:17px;"></i>
           </a>
           <a href="https://github.com/Arzisoft" target="_blank" rel="noopener" class="footer__social" aria-label="GitHub">
             <i data-lucide="github" style="width:17px;height:17px;"></i>
           </a>
-          <a href="#" class="footer__social" aria-label="LinkedIn">
+          <a href="#" class="footer__social" aria-label="LinkedIn"><!-- TODO: add LinkedIn URL -->
             <i data-lucide="linkedin" style="width:17px;height:17px;"></i>
           </a>
-          <a href="mailto:hello@arzisoft.com" class="footer__social" aria-label="Email">
+          <a href="mailto:contact@arzisoft.com" class="footer__social" aria-label="Email">
             <i data-lucide="mail" style="width:17px;height:17px;"></i>
           </a>
         </div>
@@ -46,44 +46,6 @@
     </div>
   </div>
 </footer>
-
-<style>
-.footer {
-  background: var(--bg-muted);
-  border-top: 1px solid var(--border);
-  padding: 64px 0 0;
-}
-.footer__grid {
-  display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 48px;
-  margin-bottom: 48px;
-}
-.footer__tagline { font-size: 14px; color: #9ca3af; line-height: 1.7; }
-.footer__col { display: flex; flex-direction: column; gap: 12px; }
-.footer__heading {
-  font-size: 13px; font-weight: 600; color: var(--text-primary);
-  text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px;
-}
-.footer__link { font-size: 14px; color: var(--text-secondary); transition: color 0.2s; }
-.footer__link:hover { color: var(--text-primary); }
-.footer__socials { display: flex; gap: 12px; }
-.footer__social {
-  width: 40px; height: 40px; border-radius: var(--radius-full);
-  background: rgba(0,0,0,0.04); color: var(--text-secondary);
-  display: flex; align-items: center; justify-content: center;
-  transition: background 0.2s, color 0.2s;
-}
-.footer__social:hover { background: var(--text-primary); color: #fff; }
-.footer__bottom {
-  border-top: 1px solid var(--border);
-  padding: 24px 0;
-  display: flex; justify-content: space-between; align-items: center;
-  font-size: 13px; color: #9ca3af;
-}
-@media (max-width: 768px) {
-  .footer__grid { grid-template-columns: 1fr; gap: 32px; }
-  .footer__bottom { flex-direction: column; gap: 8px; text-align: center; }
-}
-</style>
 
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 <script src="/scripts/main.js"></script>
