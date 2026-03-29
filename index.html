@@ -98,7 +98,7 @@
 </div>
 <div class="bottom-bar">
   <span>© 2026 Arzisoft</span>
-  <span><a href="mailto:contact@arzisoft.com">contact@arzisoft.com</a></span>
+  <span><a href="mailto:hello@arzisoft.com">hello@arzisoft.com</a></span>
   <span>All rights reserved</span>
 </div>
 <script>
@@ -107,17 +107,17 @@
   let cols, drops;
   function initMatrix() {
     canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-    cols = Math.floor(canvas.width / 13); drops = Array(cols).fill(1);
+    cols = Math.floor(canvas.width / 20); drops = Array(cols).fill(1);
   }
   const chars = 'アイウエオカキクケコ01{}[]<>()ARZISOFT';
   function drawMatrix() {
     ctx.fillStyle = 'rgba(5,8,16,0.05)'; ctx.fillRect(0,0,canvas.width,canvas.height);
-    ctx.font = '13px Share Tech Mono';
+    ctx.font = '20px Share Tech Mono';
     for (let i = 0; i < drops.length; i++) {
       const ch = chars[Math.floor(Math.random()*chars.length)];
-      ctx.fillStyle = drops[i]*13 < 30 ? '#00ffe0' : 'rgba(0,180,120,0.4)';
-      ctx.fillText(ch, i*13, drops[i]*13);
-      if (drops[i]*13 > canvas.height && Math.random() > 0.975) drops[i] = 0;
+      ctx.fillStyle = drops[i]*20 < 40 ? '#00ffe0' : 'rgba(0,180,120,0.4)';
+      ctx.fillText(ch, i*20, drops[i]*20);
+      if (drops[i]*20 > canvas.height && Math.random() > 0.975) drops[i] = 0;
       drops[i]++;
     }
   }
