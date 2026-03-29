@@ -1,13 +1,15 @@
 document.addEventListener('DOMContentLoaded', function () {
   // Navbar scroll state
   var navbar = document.getElementById('navbar');
-  window.addEventListener('scroll', function () {
-    if (window.scrollY > 10) {
-      navbar.classList.add('scrolled');
-    } else {
-      navbar.classList.remove('scrolled');
-    }
-  });
+  if (navbar) {
+    window.addEventListener('scroll', function () {
+      if (window.scrollY > 10) {
+        navbar.classList.add('scrolled');
+      } else {
+        navbar.classList.remove('scrolled');
+      }
+    });
+  }
 
   // Mobile menu toggle
   var toggle = document.getElementById('navToggle');
