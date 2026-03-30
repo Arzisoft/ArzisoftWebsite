@@ -1,7 +1,7 @@
 const MODEL_MAP = {
-  'Arizi-7B': 'meta/llama-3.1-8b-instruct',
-  'Arizi-13B': 'meta/llama-3.3-70b-instruct',
-  'Arizi-70B': 'nvidia/llama-3.1-nemotron-ultra-253b-v1',
+  'Llama 3.1 8B':       'meta/llama-3.1-8b-instruct',
+  'Llama 3.3 70B':      'meta/llama-3.3-70b-instruct',
+  'Nemotron Ultra 253B': 'nvidia/llama-3.1-nemotron-ultra-253b-v1',
 };
 
 const SYSTEM_PROMPT =
@@ -25,9 +25,9 @@ export async function onRequestPost(context) {
   }
 
   const KEY_MAP = {
-    'Arizi-7B':  env.NVIDIA_API_KEY_7B,
-    'Arizi-13B': env.NVIDIA_API_KEY_13B,
-    'Arizi-70B': env.NVIDIA_API_KEY_70B,
+    'Llama 3.1 8B':       env.NVIDIA_API_KEY_8B,
+    'Llama 3.3 70B':      env.NVIDIA_API_KEY_70B,
+    'Nemotron Ultra 253B': env.NVIDIA_API_KEY_253B,
   };
 
   const apiModel = MODEL_MAP[model] || MODEL_MAP['Arizi-7B'];
