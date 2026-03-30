@@ -1,0 +1,23 @@
+<%- include('../components/head', { title: 'DEVGRUP' }) %>
+<%- include('../components/nav', { currentPage: 'devgrup' }) %>
+
+<main style="min-height:calc(100vh - var(--nav-h));display:flex;align-items:center;justify-content:center;background:var(--bg);padding:var(--nav-h) 24px 80px;">
+  <div style="text-align:center;max-width:480px;">
+    <div style="display:inline-flex;align-items:center;justify-content:center;width:64px;height:64px;border-radius:16px;background:var(--icon-bg);margin-bottom:24px;">
+      <i data-lucide="hard-drive" style="width:28px;height:28px;color:var(--text-primary);"></i>
+    </div>
+    <p class="section-label" style="color:var(--accent-purple);margin-bottom:16px;">DEVGRUP</p>
+    <h1 style="font-size:clamp(28px,4vw,44px);font-weight:700;color:var(--text-primary);letter-spacing:-0.03em;line-height:1.1;margin-bottom:16px;">
+      Coming Soon
+    </h1>
+    <p style="font-size:16px;color:var(--text-muted);line-height:1.7;margin-bottom:40px;">
+      DEVGRUP is our upcoming hardware sub-brand — powerful machines built for intelligent work.
+      We're putting the finishing touches on something special.
+    </p>
+    <a href="/" class="btn-outline">
+      <i data-lucide="arrow-left" style="width:16px;height:16px;"></i> Back to Home
+    </a>
+  </div>
+</main>
+
+<%- include('../components/footer') %>
