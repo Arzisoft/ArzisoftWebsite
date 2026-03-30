@@ -8,13 +8,13 @@
 .hero__orb-blue {
   position: absolute; top: 0; right: 0;
   width: 600px; height: 600px; border-radius: 50%;
-  background: #3b82f6; opacity: 0.04; filter: blur(100px);
+  background: var(--accent-blue); opacity: 0.04; filter: blur(100px);
   pointer-events: none;
 }
 .hero__orb-purple {
   position: absolute; bottom: 0; left: 0;
   width: 500px; height: 500px; border-radius: 50%;
-  background: #8b5cf6; opacity: 0.03; filter: blur(100px);
+  background: var(--accent-purple); opacity: 0.03; filter: blur(100px);
   pointer-events: none;
 }
 .hero__inner {
