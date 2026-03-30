@@ -25,9 +25,9 @@ export async function onRequestPost(context) {
   }
 
   const KEY_MAP = {
-    'Llama 3.1 8B':       env.NVIDIA_API_KEY_8B,
-    'Llama 3.3 70B':      env.NVIDIA_API_KEY_70B,
-    'Nemotron Ultra 253B': env.NVIDIA_API_KEY_253B,
+    'Llama 3.1 8B':        env.NVIDIA_API_KEY_7B,
+    'Llama 3.3 70B':       env.NVIDIA_API_KEY_13B,
+    'Nemotron Ultra 253B': env.NVIDIA_API_KEY_70B,
   };
 
   const apiModel = MODEL_MAP[model] || MODEL_MAP['Arizi-7B'];
