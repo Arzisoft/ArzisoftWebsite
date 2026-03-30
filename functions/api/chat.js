@@ -24,12 +24,18 @@ export async function onRequestPost(context) {
     return json({ error: 'message is required' }, 400);
   }
 
-  const apiKey = env.NVIDIA_API_KEY;
+  const KEY_MAP = {
+    'Arizi-7B':  env.NVIDIA_API_KEY_7B,
+    'Arizi-13B': env.NVIDIA_API_KEY_13B,
+    'Arizi-70B': env.NVIDIA_API_KEY_70B,
+  };
+
+  const apiModel = MODEL_MAP[model] || MODEL_MAP['Arizi-7B'];
+  const apiKey = KEY_MAP[model] || KEY_MAP['Arizi-7B'];
+
   if (!apiKey) {
     return json({ error: 'AI service not configured' }, 503);
   }
-
-  const apiModel = MODEL_MAP[model] || MODEL_MAP['Arizi-7B'];
 
   let nvidiaRes;
   try {
