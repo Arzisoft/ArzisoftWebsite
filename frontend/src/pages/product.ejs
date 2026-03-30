@@ -1,0 +1,108 @@
+<%- include('../components/head', { title: 'Products' }) %>
+<%- include('../components/nav', { currentPage: 'product' }) %>
+
+<main style="background:var(--bg);padding-bottom:112px;">
+  <div class="page-header" style="padding:128px 0 80px;text-align:center;background:var(--bg);">
+    <p class="section-label" style="color:var(--accent-blue)">Products</p>
+    <h1 style="font-size:clamp(32px,4vw,52px);font-weight:700;line-height:1.1;color:var(--text-primary);letter-spacing:-0.03em;margin-bottom:16px;">Our Products</h1>
+    <p style="font-size:18px;color:var(--text-muted);max-width:440px;margin:0 auto;">Finished. Tested. Ready to Deploy.</p>
+  </div>
+
+  <div class="container">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;">
+
+      <!-- Anyemi Software -->
+      <div class="card card-lift" style="display:flex;flex-direction:column;">
+        <span style="display:inline-block;padding:4px 12px;border-radius:var(--radius-full);font-size:12px;font-weight:600;color:#3b82f6;background:rgba(59,130,246,0.08);margin-bottom:24px;align-self:flex-start;">Flagship</span>
+        <h3 style="font-size:22px;font-weight:600;color:var(--text-primary);letter-spacing:-0.01em;margin-bottom:12px;">Anyemi Software</h3>
+        <p style="font-size:14px;color:var(--text-muted);line-height:1.7;margin-bottom:32px;">A comprehensive business management platform that streamlines operations, automates workflows, and provides real-time analytics for smarter decision-making.</p>
+        <ul style="display:flex;flex-direction:column;gap:12px;margin-bottom:32px;flex:1;">
+          <li style="display:flex;align-items:center;gap:12px;">
+            <span style="width:20px;height:20px;border-radius:50%;background:var(--icon-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i data-lucide="check" style="width:11px;height:11px;"></i></span>
+            <span style="font-size:14px;color:var(--text-secondary);">Intelligent task management</span>
+          </li>
+          <li style="display:flex;align-items:center;gap:12px;">
+            <span style="width:20px;height:20px;border-radius:50%;background:var(--icon-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i data-lucide="check" style="width:11px;height:11px;"></i></span>
+            <span style="font-size:14px;color:var(--text-secondary);">Real-time analytics dashboard</span>
+          </li>
+          <li style="display:flex;align-items:center;gap:12px;">
+            <span style="width:20px;height:20px;border-radius:50%;background:var(--icon-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i data-lucide="check" style="width:11px;height:11px;"></i></span>
+            <span style="font-size:14px;color:var(--text-secondary);">Multi-team collaboration</span>
+          </li>
+          <li style="display:flex;align-items:center;gap:12px;">
+            <span style="width:20px;height:20px;border-radius:50%;background:var(--icon-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i data-lucide="check" style="width:11px;height:11px;"></i></span>
+            <span style="font-size:14px;color:var(--text-secondary);">Automated reporting system</span>
+          </li>
+        </ul>
+        <button class="btn-primary" style="width:100%;justify-content:center;">
+          Learn More <i data-lucide="arrow-right" style="width:15px;height:15px;"></i>
+        </button>
+      </div>
+
+      <!-- WhatsApp Solutions -->
+      <div class="card card-lift" style="display:flex;flex-direction:column;">
+        <span style="display:inline-block;padding:4px 12px;border-radius:var(--radius-full);font-size:12px;font-weight:600;color:#8b5cf6;background:rgba(139,92,246,0.08);margin-bottom:24px;align-self:flex-start;">Popular</span>
+        <h3 style="font-size:22px;font-weight:600;color:var(--text-primary);letter-spacing:-0.01em;margin-bottom:12px;">WhatsApp Solutions</h3>
+        <p style="font-size:14px;color:var(--text-muted);line-height:1.7;margin-bottom:32px;">Enterprise-grade WhatsApp integration suite with chatbots, automated customer support, broadcast messaging, and advanced CRM connectivity.</p>
+        <ul style="display:flex;flex-direction:column;gap:12px;margin-bottom:32px;flex:1;">
+          <li style="display:flex;align-items:center;gap:12px;">
+            <span style="width:20px;height:20px;border-radius:50%;background:var(--icon-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i data-lucide="check" style="width:11px;height:11px;"></i></span>
+            <span style="font-size:14px;color:var(--text-secondary);">Smart chatbot engine</span>
+          </li>
+          <li style="display:flex;align-items:center;gap:12px;">
+            <span style="width:20px;height:20px;border-radius:50%;background:var(--icon-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i data-lucide="check" style="width:11px;height:11px;"></i></span>
+            <span style="font-size:14px;color:var(--text-secondary);">Broadcast &amp; bulk messaging</span>
+          </li>
+          <li style="display:flex;align-items:center;gap:12px;">
+            <span style="width:20px;height:20px;border-radius:50%;background:var(--icon-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i data-lucide="check" style="width:11px;height:11px;"></i></span>
+            <span style="font-size:14px;color:var(--text-secondary);">CRM integration ready</span>
+          </li>
+          <li style="display:flex;align-items:center;gap:12px;">
+            <span style="width:20px;height:20px;border-radius:50%;background:var(--icon-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i data-lucide="check" style="width:11px;height:11px;"></i></span>
+            <span style="font-size:14px;color:var(--text-secondary);">Conversation analytics</span>
+          </li>
+        </ul>
+        <button class="btn-primary" style="width:100%;justify-content:center;">
+          Learn More <i data-lucide="arrow-right" style="width:15px;height:15px;"></i>
+        </button>
+      </div>
+
+      <!-- Automation Suite -->
+      <div class="card card-lift" style="display:flex;flex-direction:column;">
+        <span style="display:inline-block;padding:4px 12px;border-radius:var(--radius-full);font-size:12px;font-weight:600;color:#22c55e;background:rgba(34,197,94,0.08);margin-bottom:24px;align-self:flex-start;">New</span>
+        <h3 style="font-size:22px;font-weight:600;color:var(--text-primary);letter-spacing:-0.01em;margin-bottom:12px;">Automation Suite</h3>
+        <p style="font-size:14px;color:var(--text-muted);line-height:1.7;margin-bottom:32px;">End-to-end business automation that connects your existing tools, eliminates repetitive tasks, and scales your operations with intelligent workflows.</p>
+        <ul style="display:flex;flex-direction:column;gap:12px;margin-bottom:32px;flex:1;">
+          <li style="display:flex;align-items:center;gap:12px;">
+            <span style="width:20px;height:20px;border-radius:50%;background:var(--icon-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i data-lucide="check" style="width:11px;height:11px;"></i></span>
+            <span style="font-size:14px;color:var(--text-secondary);">Visual workflow builder</span>
+          </li>
+          <li style="display:flex;align-items:center;gap:12px;">
+            <span style="width:20px;height:20px;border-radius:50%;background:var(--icon-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i data-lucide="check" style="width:11px;height:11px;"></i></span>
+            <span style="font-size:14px;color:var(--text-secondary);">500+ app integrations</span>
+          </li>
+          <li style="display:flex;align-items:center;gap:12px;">
+            <span style="width:20px;height:20px;border-radius:50%;background:var(--icon-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i data-lucide="check" style="width:11px;height:11px;"></i></span>
+            <span style="font-size:14px;color:var(--text-secondary);">Smart decision engine</span>
+          </li>
+          <li style="display:flex;align-items:center;gap:12px;">
+            <span style="width:20px;height:20px;border-radius:50%;background:var(--icon-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i data-lucide="check" style="width:11px;height:11px;"></i></span>
+            <span style="font-size:14px;color:var(--text-secondary);">Custom triggers &amp; actions</span>
+          </li>
+        </ul>
+        <button class="btn-primary" style="width:100%;justify-content:center;">
+          Learn More <i data-lucide="arrow-right" style="width:15px;height:15px;"></i>
+        </button>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<%- include('../components/footer') %>
+
+<style>
+@media (max-width: 1024px) {
+  main > div > div[style*="repeat(3"] { grid-template-columns: 1fr !important; }
+}
+</style>
