@@ -1,0 +1,27 @@
+<%- include('../components/head', { title: 'Log In', pageCSS: 'auth.css' }) %>
+<%- include('../components/nav', { currentPage: 'login' }) %>
+
+<main class="auth-page">
+  <div class="auth-card">
+    <a href="/" class="auth-logo">
+      <div class="navbar__logo-icon">A</div>
+      <span class="navbar__logo-text">Arzisoft</span>
+    </a>
+    <h1 class="auth-card__h1">Welcome back</h1>
+    <p class="auth-card__sub">Sign in to your Arzisoft account</p>
+    <form action="/login" method="POST">
+      <div class="form-group">
+        <label class="form-label" for="email">Email</label>
+        <input class="form-input" type="email" id="email" name="email" placeholder="you@example.com" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="password">Password</label>
+        <input class="form-input" type="password" id="password" name="password" placeholder="••••••••" required>
+      </div>
+      <button type="submit" class="btn-primary form-submit">Sign In</button>
+    </form>
+    <p class="auth-footer">Don't have an account? <a href="/get-started">Get started</a></p>
+  </div>
+</main>
+
+<%- include('../components/footer') %>

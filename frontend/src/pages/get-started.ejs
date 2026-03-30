@@ -1,0 +1,33 @@
+<%- include('../components/head', { title: 'Get Started', pageCSS: 'auth.css' }) %>
+<%- include('../components/nav', { currentPage: 'get-started' }) %>
+
+<main class="auth-page">
+  <div class="auth-card" style="max-width:480px;">
+    <a href="/" class="auth-logo">
+      <div class="navbar__logo-icon">A</div>
+      <span class="navbar__logo-text">Arzisoft</span>
+    </a>
+    <h1 class="auth-card__h1">Let's build together</h1>
+    <p class="auth-card__sub">Tell us about your project and we'll be in touch.</p>
+    <form action="/get-started" method="POST">
+      <div class="form-group">
+        <label class="form-label" for="name">Full Name</label>
+        <input class="form-input" type="text" id="name" name="name" placeholder="Your name" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="email">Email</label>
+        <input class="form-input" type="email" id="email" name="email" placeholder="you@company.com" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="message">Tell us about your project</label>
+        <textarea class="form-input" id="message" name="message" rows="4" placeholder="What are you building?" style="resize:vertical;"></textarea>
+      </div>
+      <button type="submit" class="btn-primary form-submit">
+        Send Message <i data-lucide="arrow-right" style="width:16px;height:16px;"></i>
+      </button>
+    </form>
+    <p class="auth-footer">Already have an account? <a href="/login">Sign in</a></p>
+  </div>
+</main>
+
+<%- include('../components/footer') %>

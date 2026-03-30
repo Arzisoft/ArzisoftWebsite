@@ -1,0 +1,119 @@
+<%- include('../components/head', { title: 'Home', pageCSS: 'home.css' }) %>
+<%- include('../components/nav', { currentPage: 'home' }) %>
+
+<main>
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero__orb-blue"></div>
+    <div class="hero__orb-purple"></div>
+    <div class="hero__inner">
+      <div class="hero__badge">
+        <span class="hero__badge-dot"></span>
+        <span class="hero__badge-text">Now available — Arzisoft AI Chat</span>
+      </div>
+      <h1 class="hero__h1">The Future of<br>Solutions</h1>
+      <p class="hero__sub">
+        Finished products. Intelligent services. Real results.<br>
+        We build software that moves your business forward.
+      </p>
+      <div class="hero__actions">
+        <a href="/product" class="btn-primary">
+          Explore Products <i data-lucide="arrow-right" style="width:16px;height:16px;"></i>
+        </a>
+        <a href="/services" class="btn-outline">Talk to Us</a>
+      </div>
+      <div class="hero__image">
+        <img
+          src="https://images.unsplash.com/photo-1690383922983-90d7a4658ef3?w=1080&q=80"
+          alt="Team collaboration"
+          loading="eager"
+        >
+      </div>
+    </div>
+  </section>
+
+  <!-- Pillars -->
+  <section class="pillars">
+    <div class="container">
+      <div class="pillars__header">
+        <p class="section-label" style="color:var(--accent-blue)">What we do</p>
+        <h2 class="pillars__h2">Everything you need,<br>one company</h2>
+      </div>
+      <div class="pillars__grid">
+        <a href="/product" class="pillar-card">
+          <div class="icon-wrap">
+            <i data-lucide="box" style="width:20px;height:20px;"></i>
+          </div>
+          <h3 class="pillar-card__title">Products</h3>
+          <p class="pillar-card__desc">Ready-to-deploy software that works from day one.</p>
+        </a>
+        <a href="/services" class="pillar-card">
+          <div class="icon-wrap">
+            <i data-lucide="cpu" style="width:20px;height:20px;"></i>
+          </div>
+          <h3 class="pillar-card__title">Services</h3>
+          <p class="pillar-card__desc">End-to-end development and consulting.</p>
+        </a>
+        <a href="/ai" class="pillar-card">
+          <div class="icon-wrap">
+            <i data-lucide="message-square" style="width:20px;height:20px;"></i>
+          </div>
+          <h3 class="pillar-card__title">AI Chat</h3>
+          <p class="pillar-card__desc">Intelligent conversations, real answers.</p>
+        </a>
+        <a href="/devgrup" class="pillar-card">
+          <div class="icon-wrap">
+            <i data-lucide="hard-drive" style="width:20px;height:20px;"></i>
+          </div>
+          <h3 class="pillar-card__title">Hardware</h3>
+          <p class="pillar-card__desc">Powerful machines built for performance.</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- About -->
+  <section class="about">
+    <div class="container">
+      <div class="about__grid">
+        <div>
+          <p class="section-label" style="color:var(--accent-blue)">About Arzisoft</p>
+          <h2 class="about__h2">Solutions that deliver real outcomes</h2>
+          <p class="about__p">
+            Arzisoft is a modern technology company focused on building finished, production-ready
+            software products, offering end-to-end development services, and providing the hardware
+            infrastructure businesses need to scale.
+          </p>
+          <p class="about__p">
+            We believe great technology should be accessible, reliable, and easy to work with.
+            That's why every product we ship and service we deliver is built with simplicity
+            and quality at the core.
+          </p>
+          <div class="about__stats">
+            <div>
+              <div class="stat__value">50+</div>
+              <div class="stat__label">Projects Delivered</div>
+            </div>
+            <div>
+              <div class="stat__value">99%</div>
+              <div class="stat__label">Client Satisfaction</div>
+            </div>
+            <div>
+              <div class="stat__value">24/7</div>
+              <div class="stat__label">Support Uptime</div>
+            </div>
+          </div>
+        </div>
+        <div class="about__img">
+          <img
+            src="https://images.unsplash.com/photo-1560438718-eb61ede255eb?w=1080&q=80"
+            alt="Modern workspace"
+            loading="lazy"
+          >
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<%- include('../components/footer') %>

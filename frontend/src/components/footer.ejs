@@ -1,0 +1,57 @@
+<footer class="footer">
+  <div class="container">
+    <div class="footer__grid">
+      <!-- Brand -->
+      <div class="footer__brand">
+        <a href="/" class="navbar__logo" style="display:inline-flex;align-items:center;gap:10px;margin-bottom:16px;">
+          <div class="navbar__logo-icon">A</div>
+          <span class="navbar__logo-text">Arzisoft</span>
+        </a>
+        <p class="footer__tagline">Building the Future of Solutions</p>
+      </div>
+
+      <!-- Pages -->
+      <div class="footer__col">
+        <span class="footer__heading">Pages</span>
+        <a href="/" class="footer__link">Home</a>
+        <a href="/product" class="footer__link">Products</a>
+        <a href="/services" class="footer__link">Services</a>
+        <a href="/ai" class="footer__link">AI Chat</a>
+        <a href="/devgrup" class="footer__link">DEVGRUP</a>
+      </div>
+
+      <!-- Connect -->
+      <div class="footer__col">
+        <span class="footer__heading">Connect</span>
+        <div class="footer__socials">
+          <a href="#" class="footer__social" aria-label="Twitter"><!-- TODO: add Twitter URL -->
+            <i data-lucide="twitter" style="width:17px;height:17px;"></i>
+          </a>
+          <a href="https://github.com/Arzisoft" target="_blank" rel="noopener" class="footer__social" aria-label="GitHub">
+            <i data-lucide="github" style="width:17px;height:17px;"></i>
+          </a>
+          <a href="#" class="footer__social" aria-label="LinkedIn"><!-- TODO: add LinkedIn URL -->
+            <i data-lucide="linkedin" style="width:17px;height:17px;"></i>
+          </a>
+          <a href="mailto:contact@arzisoft.com" class="footer__social" aria-label="Email">
+            <i data-lucide="mail" style="width:17px;height:17px;"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer__bottom">
+      <p>&copy; 2026 Arzisoft. All rights reserved.</p>
+      <p>Building the Future of Solutions</p>
+    </div>
+  </div>
+</footer>
+
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script src="/scripts/main.js"></script>
+<% if (typeof pageScript !== 'undefined') { %>
+  <script src="/scripts/<%= pageScript %>"></script>
+<% } %>
+<script>lucide.createIcons();</script>
+</body>
+</html>
