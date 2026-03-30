@@ -55,6 +55,7 @@ document.addEventListener('DOMContentLoaded', function () {
     messages.appendChild(msg);
     lucide.createIcons();
     messages.scrollTop = messages.scrollHeight;
+    return msg;
   }
 
   function sendMessage() {
@@ -63,10 +64,29 @@ document.addEventListener('DOMContentLoaded', function () {
     appendMessage('human', text);
     input.value = '';
     send.classList.remove('active');
-    // Placeholder response — replace with fetch('/api/chat', ...) when backend is ready
-    setTimeout(function () {
-      appendMessage('ai', 'Great question! Based on your needs, I\'d suggest starting with our Automation Suite for workflow orchestration, paired with a custom integration layer. Want me to outline a technical architecture?');
-    }, 800);
+
+    var typing = appendMessage('ai', 'Thinking…');
+    typing.setAttribute('data-typing', '1');
+
+    var selectedModel = modelLabel.textContent;
+
+    fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: text, model: selectedModel }),
+    })
+      .then(function (res) { return res.json(); })
+      .then(function (data) {
+        var bubble = typing.querySelector('.message__bubble');
+        bubble.textContent = data.reply || 'Sorry, I could not generate a response.';
+        typing.removeAttribute('data-typing');
+        messages.scrollTop = messages.scrollHeight;
+      })
+      .catch(function () {
+        var bubble = typing.querySelector('.message__bubble');
+        bubble.textContent = 'Connection error. Please try again.';
+        typing.removeAttribute('data-typing');
+      });
   }
 
   send.addEventListener('click', sendMessage);
