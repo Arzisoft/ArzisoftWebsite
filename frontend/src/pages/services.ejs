@@ -1,0 +1,60 @@
+<%- include('../components/head', { title: 'Services', pageCSS: 'services.css' }) %>
+<%- include('../components/nav', { currentPage: 'services' }) %>
+
+<main>
+  <div style="background:var(--bg);padding-bottom:112px;">
+    <div class="page-header">
+      <p class="section-label" style="color:var(--accent-purple)">Services</p>
+      <h1 class="page-header__h1">What We Offer</h1>
+      <p class="page-header__sub">End-to-end solutions built for the future.</p>
+    </div>
+
+    <div class="container">
+      <div class="services-grid">
+        <div class="card service-card">
+          <div class="icon-wrap"><i data-lucide="brain" style="width:20px;height:20px;"></i></div>
+          <h3 class="service-card__name">AI Integration</h3>
+          <p class="service-card__desc">Seamlessly integrate AI and machine learning capabilities into your existing products and workflows.</p>
+        </div>
+        <div class="card service-card">
+          <div class="icon-wrap"><i data-lucide="workflow" style="width:20px;height:20px;"></i></div>
+          <h3 class="service-card__name">Business Automation</h3>
+          <p class="service-card__desc">Automate repetitive processes with intelligent workflows that learn and adapt over time.</p>
+        </div>
+        <div class="card service-card">
+          <div class="icon-wrap"><i data-lucide="palette" style="width:20px;height:20px;"></i></div>
+          <h3 class="service-card__name">Web Design</h3>
+          <p class="service-card__desc">Stunning, conversion-focused designs with modern UI/UX principles built for every device.</p>
+        </div>
+        <div class="card service-card">
+          <div class="icon-wrap"><i data-lucide="code" style="width:20px;height:20px;"></i></div>
+          <h3 class="service-card__name">Frontend Development</h3>
+          <p class="service-card__desc">Pixel-perfect modern frontend development with blazing-fast performance.</p>
+        </div>
+        <div class="card service-card">
+          <div class="icon-wrap"><i data-lucide="server" style="width:20px;height:20px;"></i></div>
+          <h3 class="service-card__name">Backend Development</h3>
+          <p class="service-card__desc">Scalable API architecture, database design, and cloud infrastructure for enterprise apps.</p>
+        </div>
+        <div class="card service-card">
+          <div class="icon-wrap"><i data-lucide="settings" style="width:20px;height:20px;"></i></div>
+          <h3 class="service-card__name">Software Solutions</h3>
+          <p class="service-card__desc">Custom software built from the ground up, tailored exactly to your business requirements.</p>
+        </div>
+      </div>
+
+      <div class="services-cta">
+        <h2 class="services-cta__h2">Let's Build Together</h2>
+        <p class="services-cta__p">
+          Ready to bring your next project to life? Let's discuss how
+          Arzisoft can turn your vision into a working product.
+        </p>
+        <a href="/ai" class="btn-primary">
+          Start a Conversation <i data-lucide="arrow-right" style="width:16px;height:16px;"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+</main>
+
+<%- include('../components/footer') %>
