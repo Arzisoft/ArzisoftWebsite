@@ -1,0 +1,89 @@
+<%- include('../components/head', { title: 'AI Chat', pageCSS: 'ai.css' }) %>
+<%- include('../components/nav', { currentPage: 'ai' }) %>
+
+<main class="chat-wrap">
+  <div class="container">
+    <div class="chat-header">
+      <p class="section-label" style="color:var(--accent-blue)">AI Chat</p>
+      <h1 class="chat-header__h1">Meet Our AI Models</h1>
+      <p class="chat-header__sub">Explore intelligence. Talk to our local LLMs.</p>
+    </div>
+
+    <div class="chat-box">
+      <!-- Top bar -->
+      <div class="chat-topbar">
+        <div class="chat-identity">
+          <div class="chat-icon">
+            <i data-lucide="sparkles" style="width:15px;height:15px;"></i>
+          </div>
+          <div>
+            <div class="chat-name">Arizi AI</div>
+            <div class="chat-status">
+              <span class="chat-status-dot"></span>
+              <span class="chat-status-text">Online</span>
+            </div>
+          </div>
+        </div>
+        <div class="model-dropdown">
+          <button class="model-btn" id="modelBtn">
+            <span id="modelLabel">Arizi-7B</span>
+            <i data-lucide="chevron-down" style="width:14px;height:14px;color:var(--text-muted)"></i>
+          </button>
+          <div class="model-menu" id="modelMenu">
+            <button class="model-item selected" data-model="Arizi-7B" data-desc="Fast &amp; efficient">
+              <div><div class="model-item__name">Arizi-7B</div><div class="model-item__desc">Fast &amp; efficient</div></div>
+              <span class="model-item__dot"></span>
+            </button>
+            <button class="model-item" data-model="Arizi-13B" data-desc="Balanced performance">
+              <div><div class="model-item__name">Arizi-13B</div><div class="model-item__desc">Balanced performance</div></div>
+            </button>
+            <button class="model-item" data-model="Arizi-70B" data-desc="Maximum intelligence">
+              <div><div class="model-item__name">Arizi-70B</div><div class="model-item__desc">Maximum intelligence</div></div>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Messages -->
+      <div class="chat-messages" id="chatMessages">
+        <div class="message">
+          <div class="message__avatar message__avatar--ai">
+            <i data-lucide="bot" style="width:15px;height:15px;"></i>
+          </div>
+          <div class="message__bubble message__bubble--ai">Hello! I'm Arizi AI, your intelligent assistant. I can help you with coding, analysis, creative writing, and much more. How can I assist you today?</div>
+        </div>
+        <div class="message message--human">
+          <div class="message__avatar message__avatar--human">
+            <i data-lucide="user" style="width:15px;height:15px;"></i>
+          </div>
+          <div class="message__bubble message__bubble--human">Can you help me build an automated customer support system?</div>
+        </div>
+        <div class="message">
+          <div class="message__avatar message__avatar--ai">
+            <i data-lucide="bot" style="width:15px;height:15px;"></i>
+          </div>
+          <div class="message__bubble message__bubble--ai">Absolutely! I'd recommend a multi-layered approach:
+
+1. Intent Classification — Use NLP to categorize incoming queries
+2. Knowledge Base — Build a dynamic FAQ system with semantic search
+3. Escalation Logic — Smart routing to human agents when needed
+4. Analytics Dashboard — Track resolution rates and response times
+
+Would you like me to dive deeper into any of these components?</div>
+        </div>
+      </div>
+
+      <!-- Input -->
+      <div class="chat-input-row">
+        <div class="chat-input-wrap">
+          <input type="text" class="chat-input" id="chatInput" placeholder="Type your message...">
+          <button class="chat-send" id="chatSend">
+            <i data-lucide="send" style="width:15px;height:15px;"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<%- include('../components/footer', { pageScript: 'ai.js' }) %>
