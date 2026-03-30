@@ -18,6 +18,9 @@ venv/
 # logs
 *.log
 
+# claude
+.claude/
+
 # os / editors
 .DS_Store
 Thumbs.db
