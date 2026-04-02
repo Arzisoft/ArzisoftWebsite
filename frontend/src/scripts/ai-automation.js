@@ -11,7 +11,6 @@ document.addEventListener('DOMContentLoaded', function () {
   var diagramMeta        = document.getElementById('diagramMeta');
   var outputTimeline     = document.getElementById('outputTimeline');
   var outputTimelineWrap = document.getElementById('outputTimelineWrap');
-  var ctaBtn           = document.getElementById('ctaBtn');
   var modalOverlay     = document.getElementById('modalOverlay');
   var modalClose       = document.getElementById('modalClose');
   var modalSummary     = document.getElementById('modalSummary');
@@ -22,6 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Conversation history sent to Claude
   var history = [];
+  var popupTriggered = false;
 
   mermaid.initialize({
     startOnLoad: false,
@@ -124,6 +124,9 @@ document.addEventListener('DOMContentLoaded', function () {
     outputEmpty.style.display = 'none';
     outputResult.style.display = 'flex';
 
+    // Schedule popup after user scrolls to diagram
+    schedulePopup();
+
     return true;
   }
 
@@ -178,7 +181,7 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   // Modal open
-  ctaBtn.addEventListener('click', function () {
+  function openModal() {
     if (window._autoSummary) {
       modalSummary.textContent = window._autoSummary;
       modalSummary.classList.add('visible');
@@ -188,7 +191,21 @@ document.addEventListener('DOMContentLoaded', function () {
     modalError.style.display = 'none';
     modalOverlay.classList.add('open');
     lucide.createIcons();
-  });
+  }
+
+  function schedulePopup() {
+    if (popupTriggered) return;
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting && !popupTriggered) {
+          popupTriggered = true;
+          observer.disconnect();
+          setTimeout(openModal, 3000);
+        }
+      });
+    }, { threshold: 0.3 });
+    observer.observe(outputDiagram);
+  }
 
   // Modal close
   modalClose.addEventListener('click', function () { modalOverlay.classList.remove('open'); });
@@ -242,6 +259,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   resetBtn.addEventListener('click', function () {
     history = [];
+    popupTriggered = false;
     messages.innerHTML = '';
     outputEmpty.style.display = 'flex';
     outputResult.style.display = 'none';
