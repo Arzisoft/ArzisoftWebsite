@@ -62,7 +62,7 @@ export async function onRequestPost(context) {
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        from: 'Arzisoft <onboarding@resend.dev>',
+        from: 'Arzisoft <notifications@arzisoft.com>',
         to: ['arzisoft@arzisoft.com'],
         reply_to: email,
         subject: `Automation Request — ${name}`,
