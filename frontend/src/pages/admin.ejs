@@ -57,4 +57,19 @@
   </div>
 </main>
 
+<!-- Detail modal -->
+<div id="adminModal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.45);overflow-y:auto;padding:40px 20px;">
+  <div style="background:var(--bg);border-radius:var(--radius-xl);max-width:860px;margin:0 auto;padding:36px;position:relative;">
+    <button id="modalClose" style="position:absolute;top:16px;right:16px;background:none;border:none;cursor:pointer;color:var(--text-muted);padding:4px;">
+      <i data-lucide="x" style="width:20px;height:20px;"></i>
+    </button>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
 <%- include('../components/footer', { pageScript: 'admin.js' }) %>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: false, theme: 'default' });
+  window._mermaid = mermaid;
+</script>

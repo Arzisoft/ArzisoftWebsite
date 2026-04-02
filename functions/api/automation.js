@@ -72,6 +72,8 @@ export async function onRequestPost(context) {
         var logKey = 'log:' + Date.now() + ':' + Math.random().toString(36).slice(2, 6);
         var writePromise = kv.put(logKey, JSON.stringify({
           message: messages[0] && messages[0].content ? messages[0].content : '',
+          messages: messages,
+          reply: reply,
           category: category,
           contacted: false,
           createdAt: new Date().toISOString(),
