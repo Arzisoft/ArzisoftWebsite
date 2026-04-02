@@ -75,14 +75,6 @@
 
           <div class="output-section">
             <div class="output-label">
-              <i data-lucide="layers" style="width:13px;height:13px;"></i>
-              Tech Stack
-            </div>
-            <div class="output-stack" id="outputStack"></div>
-          </div>
-
-          <div class="output-section">
-            <div class="output-label">
               <i data-lucide="git-branch" style="width:13px;height:13px;"></i>
               Automation Flow
             </div>
@@ -99,25 +91,16 @@
             <p class="diagram-error" id="diagramError" style="display:none;">Could not render diagram. Try rephrasing your process.</p>
           </div>
 
-          <div class="output-section output-section--row">
-            <div class="output-stat">
-              <span class="output-stat__label">Est. Build Time</span>
-              <span class="output-stat__value" id="outputTimeline">—</span>
-            </div>
-            <div class="output-stat">
-              <span class="output-stat__label">Complexity</span>
-              <span class="output-stat__value" id="outputComplexityBadge">—</span>
-            </div>
-            <div class="output-stat">
-              <span class="output-stat__label">Integrations</span>
-              <span class="output-stat__value" id="outputIntegrations">—</span>
-            </div>
+          <div class="output-timeline" id="outputTimelineWrap" style="display:none;">
+            <span class="output-timeline__label">Ready in</span>
+            <span class="output-timeline__value" id="outputTimeline"></span>
+            <span class="output-timeline__note">includes build, testing &amp; deployment</span>
           </div>
 
           <!-- CTA -->
           <div class="output-cta">
-            <p class="output-cta__title">Want us to build this for you?</p>
-            <p class="output-cta__sub">We custom-build every automation from scratch — no off-the-shelf tools, no shortcuts.</p>
+            <p class="output-cta__title">This is yours. We just need to build it.</p>
+            <p class="output-cta__sub">Custom-engineered for your business. Nothing templated, nothing recycled.</p>
             <button id="ctaBtn" class="btn-primary" style="width:100%;justify-content:center;">
               <i data-lucide="mail" style="width:16px;height:16px;"></i>
               Get in touch
