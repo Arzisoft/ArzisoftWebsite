@@ -28,7 +28,7 @@ OUTPUT FORMAT — use exactly this structure, no extra text:
 [Simple / Medium / Complex] — [one sentence: number of integrations and why]
 
 ---STACK---
-[Comma-separated list of tools, APIs, or platforms detected or recommended. Be specific. E.g.: WhatsApp Business API, Zoho CRM REST API, Google Sheets API, Node.js Webhook Server, Cloudflare Workers]
+[Comma-separated list of the technical components Arzisoft will custom-build. Never mention third-party no-code tools like Zapier, Make.com, n8n, Power Automate, or Integromat — Arzisoft builds everything from scratch. Use terms like: WhatsApp Business API, Custom Webhook Server, REST API Integration, Custom Data Parser, Excel REST API, Zoho CRM API, Custom Notification Service, Arzisoft Integration Layer]
 
 ---TIMELINE---
 [Realistic build estimate. E.g.: 3–5 business days]
