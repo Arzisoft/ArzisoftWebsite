@@ -57,6 +57,68 @@ flowchart TD
     G -->|No| H[FLAG: Add to Review Queue]
     H --> Z`;
 
+// ── Cache key extraction ──────────────────────────────────────────────────────
+// Maps automation descriptions to a normalised category key like "whatsapp--excel"
+// so repetitive patterns skip Claude entirely.
+
+const SOURCE_MAP = [
+  ['whatsapp', 'whatsapp'],
+  ['telegram', 'telegram'],
+  ['instagram', 'instagram'],
+  ['gmail',    'email'],
+  ['email',    'email'],
+  ['form',     'form'],
+  ['typeform', 'form'],
+  ['sms',      'sms'],
+  ['phone',    'phone'],
+  ['invoice',  'invoice'],
+  ['pdf',      'pdf'],
+];
+
+const DEST_MAP = [
+  ['google sheets', 'gsheets'],
+  ['excel',         'excel'],
+  ['sheets',        'gsheets'],
+  ['quickbooks',    'accounting'],
+  ['xero',          'accounting'],
+  ['accounting',    'accounting'],
+  ['zoho',          'crm'],
+  ['salesforce',    'crm'],
+  ['hubspot',       'crm'],
+  ['crm',           'crm'],
+  ['notion',        'notion'],
+  ['airtable',      'airtable'],
+  ['slack',         'slack'],
+  ['trello',        'trello'],
+  ['jira',          'jira'],
+  ['database',      'database'],
+];
+
+function extractCacheKey(messages) {
+  const text = messages.map(m => m.content).join(' ').toLowerCase();
+
+  let source = 'general';
+  for (const [kw, val] of SOURCE_MAP) {
+    if (text.includes(kw)) { source = val; break; }
+  }
+
+  let dest = 'general';
+  for (const [kw, val] of DEST_MAP) {
+    if (text.includes(kw)) { dest = val; break; }
+  }
+
+  return `${source}--${dest}`;
+}
+
+// ── Log entry (fire-and-forget, never blocks the response) ────────────────────
+function saveLog(kv, entry) {
+  if (!kv) return;
+  const key = 'log:' + Date.now() + ':' + Math.random().toString(36).slice(2, 7);
+  kv.put(key, JSON.stringify(entry), { expirationTtl: 60 * 60 * 24 * 90 }) // 90 days
+    .catch(() => {});
+}
+
+// ── Handler ───────────────────────────────────────────────────────────────────
 export async function onRequestPost(context) {
   const { request, env } = context;
 
@@ -77,6 +139,27 @@ export async function onRequestPost(context) {
     return json({ error: 'AI service not configured' }, 503);
   }
 
+  const kv       = env.AUTOMATION_KV || null;
+  const category = extractCacheKey(messages);
+  const cacheKey = 'cache:' + category;
+
+  // ── Cache hit ──────────────────────────────────────────────────────────────
+  if (kv) {
+    try {
+      const cached = await kv.get(cacheKey, 'json');
+      if (cached) {
+        saveLog(kv, {
+          message:   messages[0]?.content || '',
+          category,
+          cacheHit:  true,
+          createdAt: new Date().toISOString(),
+        });
+        return json({ reply: cached.reply });
+      }
+    } catch (_) { /* KV unavailable — fall through to Claude */ }
+  }
+
+  // ── Call Claude ────────────────────────────────────────────────────────────
   let claudeRes;
   try {
     claudeRes = await fetch('https://api.anthropic.com/v1/messages', {
@@ -103,8 +186,23 @@ export async function onRequestPost(context) {
     return json({ error: 'AI service returned an error' }, 502);
   }
 
-  const data = await claudeRes.json();
+  const data  = await claudeRes.json();
   const reply = data.content?.[0]?.text?.trim() || 'Sorry, I could not generate a response.';
+
+  // ── Persist (only valid diagram responses) ─────────────────────────────────
+  if (kv && reply.includes('---SUMMARY---')) {
+    // Cache this category for future identical requests
+    kv.put(cacheKey, JSON.stringify({ reply, cachedAt: new Date().toISOString() }))
+      .catch(() => {});
+
+    // Analytics log
+    saveLog(kv, {
+      message:   messages[0]?.content || '',
+      category,
+      cacheHit:  false,
+      createdAt: new Date().toISOString(),
+    });
+  }
 
   return json({ reply });
 }
