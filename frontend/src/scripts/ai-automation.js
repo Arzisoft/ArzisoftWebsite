@@ -1,0 +1,153 @@
+document.addEventListener('DOMContentLoaded', function () {
+  var input      = document.getElementById('chatInput');
+  var send       = document.getElementById('chatSend');
+  var messages   = document.getElementById('chatMessages');
+  var resetBtn   = document.getElementById('resetBtn');
+  var outputEmpty  = document.getElementById('outputEmpty');
+  var outputResult = document.getElementById('outputResult');
+  var outputSummary    = document.getElementById('outputSummary');
+  var outputComplexity = document.getElementById('outputComplexity');
+  var outputDiagram    = document.getElementById('outputDiagram');
+  var diagramError     = document.getElementById('diagramError');
+  var ctaEmail         = document.getElementById('ctaEmail');
+
+  // Conversation history sent to Claude
+  var history = [];
+
+  mermaid.initialize({ startOnLoad: false, theme: 'neutral', securityLevel: 'loose' });
+
+  // Send button active state
+  input.addEventListener('input', function () {
+    send.classList.toggle('active', input.value.trim().length > 0);
+  });
+
+  function appendMessage(role, html, isHTML) {
+    var msg = document.createElement('div');
+    msg.className = 'message' + (role === 'human' ? ' message--human' : '');
+
+    var avatar = document.createElement('div');
+    avatar.className = 'message__avatar message__avatar--' + role;
+    var icon = document.createElement('i');
+    icon.setAttribute('data-lucide', role === 'ai' ? 'bot' : 'user');
+    icon.style.cssText = 'width:15px;height:15px;';
+    avatar.appendChild(icon);
+
+    var bubble = document.createElement('div');
+    bubble.className = 'message__bubble message__bubble--' + role;
+    if (isHTML) {
+      bubble.innerHTML = html;
+    } else {
+      bubble.textContent = html;
+    }
+
+    msg.appendChild(avatar);
+    msg.appendChild(bubble);
+    messages.appendChild(msg);
+    lucide.createIcons();
+    messages.scrollTop = messages.scrollHeight;
+    return msg;
+  }
+
+  function parseAndRender(reply) {
+    // Check if reply contains the output markers
+    if (reply.indexOf('---SUMMARY---') === -1) return false;
+
+    var summaryMatch    = reply.match(/---SUMMARY---([\s\S]*?)---COMPLEXITY---/);
+    var complexityMatch = reply.match(/---COMPLEXITY---([\s\S]*?)---DIAGRAM---/);
+    var diagramMatch    = reply.match(/```mermaid([\s\S]*?)```/);
+
+    if (!summaryMatch || !complexityMatch || !diagramMatch) return false;
+
+    var summary    = summaryMatch[1].trim();
+    var complexity = complexityMatch[1].trim();
+    var diagram    = diagramMatch[1].trim();
+
+    // Render summary
+    outputSummary.textContent = summary;
+
+    // Render complexity with color
+    var level = complexity.split('—')[0].trim().toLowerCase();
+    var colorClass = level === 'simple' ? 'complexity-simple' : level === 'medium' ? 'complexity-medium' : 'complexity-complex';
+    outputComplexity.innerHTML = '<span class="' + colorClass + '">' + complexity.split('—')[0].trim() + '</span>' + (complexity.indexOf('—') > -1 ? ' — ' + complexity.split('—').slice(1).join('—').trim() : '');
+
+    // Render Mermaid diagram
+    diagramError.style.display = 'none';
+    outputDiagram.innerHTML = '';
+    var id = 'mermaid-' + Date.now();
+    try {
+      mermaid.render(id, diagram).then(function (result) {
+        outputDiagram.innerHTML = result.svg;
+      }).catch(function () {
+        diagramError.style.display = 'block';
+        outputDiagram.innerHTML = '<pre style="font-size:12px;color:var(--text-muted);white-space:pre-wrap;">' + diagram + '</pre>';
+      });
+    } catch (e) {
+      diagramError.style.display = 'block';
+    }
+
+    // Pre-fill email with summary
+    var subject = encodeURIComponent('Automation Flow Request');
+    var emailBody = encodeURIComponent('Hi Arzisoft,\n\nI used your Automation Flow Designer and got this result:\n\n' + summary + '\n\nComplexity: ' + complexity + '\n\nI\'d like to discuss building this for my business.');
+    ctaEmail.href = 'mailto:arzisoft@arzisoft.com?subject=' + subject + '&body=' + emailBody;
+
+    // Show output panel
+    outputEmpty.style.display = 'none';
+    outputResult.style.display = 'flex';
+
+    return true;
+  }
+
+  function sendMessage() {
+    var text = input.value.trim();
+    if (!text) return;
+
+    appendMessage('human', text, false);
+    history.push({ role: 'user', content: text });
+    input.value = '';
+    send.classList.remove('active');
+
+    var typing = appendMessage('ai', 'Thinking...', false);
+    typing.setAttribute('data-typing', '1');
+
+    fetch('/api/automation', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages: history }),
+    })
+      .then(function (res) { return res.json(); })
+      .then(function (data) {
+        var reply = data.reply || 'Sorry, I could not generate a response.';
+        history.push({ role: 'assistant', content: reply });
+
+        var bubble = typing.querySelector('.message__bubble');
+        var isDiagram = parseAndRender(reply);
+
+        if (isDiagram) {
+          bubble.innerHTML = 'Your automation flow is ready. Check the panel on the right.<br><br><span class="example-hint">Scroll down to see the diagram and contact us to build it.</span>';
+        } else {
+          bubble.textContent = reply;
+        }
+        typing.removeAttribute('data-typing');
+        messages.scrollTop = messages.scrollHeight;
+      })
+      .catch(function () {
+        var bubble = typing.querySelector('.message__bubble');
+        bubble.textContent = 'Connection error. Please try again.';
+        typing.removeAttribute('data-typing');
+      });
+  }
+
+  send.addEventListener('click', sendMessage);
+  input.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') sendMessage();
+  });
+
+  resetBtn.addEventListener('click', function () {
+    history = [];
+    messages.innerHTML = '';
+    outputEmpty.style.display = 'flex';
+    outputResult.style.display = 'none';
+    outputDiagram.innerHTML = '';
+    appendMessage('ai', 'Hey! I\'m going to help you map out your automation. Let\'s start simple — what task are you doing manually right now?\n\nWalk me through it step by step — what do you open, click, copy, fill in?\n\nExample: "Every morning I open Gmail, find new orders, copy them into a Google Sheet, then send each customer a WhatsApp message."', false);
+  });
+});

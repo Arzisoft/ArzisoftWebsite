@@ -1,0 +1,112 @@
+<%- include('../components/head', { title: 'Automation Flow Designer', pageCSS: 'ai-automation.css' }) %>
+<%- include('../components/nav', { currentPage: 'ai' }) %>
+
+<main class="auto-wrap">
+  <div class="container">
+
+    <!-- Header -->
+    <div class="auto-header">
+      <p class="section-label" style="color:var(--accent-blue)">Free Tool</p>
+      <h1 class="auto-header__h1">Design Your Automation</h1>
+      <p class="auto-header__sub">Describe any manual task — our AI maps the full automation flow in seconds.</p>
+    </div>
+
+    <!-- Two-column layout: chat left, output right -->
+    <div class="auto-layout">
+
+      <!-- Chat panel -->
+      <div class="auto-chat">
+        <div class="chat-topbar">
+          <div class="chat-identity">
+            <div class="chat-icon">
+              <i data-lucide="workflow" style="width:15px;height:15px;"></i>
+            </div>
+            <div>
+              <div class="chat-name">Automation Consultant</div>
+              <div class="chat-status">
+                <span class="chat-status-dot"></span>
+                <span class="chat-status-text">Online</span>
+              </div>
+            </div>
+          </div>
+          <button class="reset-btn" id="resetBtn">
+            <i data-lucide="rotate-ccw" style="width:13px;height:13px;"></i>
+            Start over
+          </button>
+        </div>
+
+        <div class="chat-messages" id="chatMessages">
+          <div class="message">
+            <div class="message__avatar message__avatar--ai">
+              <i data-lucide="bot" style="width:15px;height:15px;"></i>
+            </div>
+            <div class="message__bubble message__bubble--ai">Hey! I'm going to help you map out your automation. Let's start simple — what task are you doing manually right now?<br><br>Walk me through it step by step — what do you open, click, copy, fill in?<br><br><span class="example-hint">Example: "Every morning I open Gmail, find new orders, copy them into a Google Sheet, then send each customer a WhatsApp message."</span></div>
+          </div>
+        </div>
+
+        <div class="chat-input-row">
+          <div class="chat-input-wrap">
+            <input type="text" class="chat-input" id="chatInput" placeholder="Describe your process...">
+            <button class="chat-send" id="chatSend">
+              <i data-lucide="send" style="width:15px;height:15px;"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Output panel -->
+      <div class="auto-output" id="outputPanel">
+        <div class="output-empty" id="outputEmpty">
+          <div class="output-empty__icon">
+            <i data-lucide="git-branch" style="width:28px;height:28px;color:var(--text-muted)"></i>
+          </div>
+          <p class="output-empty__title">Your flow will appear here</p>
+          <p class="output-empty__sub">Answer the questions on the left and we'll generate your automation diagram.</p>
+        </div>
+
+        <div class="output-result" id="outputResult" style="display:none;">
+          <div class="output-section">
+            <div class="output-label">
+              <i data-lucide="file-text" style="width:13px;height:13px;"></i>
+              Summary
+            </div>
+            <p class="output-summary" id="outputSummary"></p>
+          </div>
+
+          <div class="output-section">
+            <div class="output-label">
+              <i data-lucide="zap" style="width:13px;height:13px;"></i>
+              Complexity
+            </div>
+            <p class="output-complexity" id="outputComplexity"></p>
+          </div>
+
+          <div class="output-section">
+            <div class="output-label">
+              <i data-lucide="git-branch" style="width:13px;height:13px;"></i>
+              Automation Flow
+            </div>
+            <div class="output-diagram" id="outputDiagram"></div>
+            <p class="diagram-error" id="diagramError" style="display:none;">Could not render diagram. Try rephrasing your process.</p>
+          </div>
+
+          <!-- CTA -->
+          <div class="output-cta">
+            <p class="output-cta__title">Want us to build this for you?</p>
+            <p class="output-cta__sub">We can have this running in days, not months.</p>
+            <a href="mailto:arzisoft@arzisoft.com" id="ctaEmail" class="btn-primary">
+              <i data-lucide="mail" style="width:16px;height:16px;"></i>
+              Email us to build this
+            </a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<!-- Mermaid -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+
+<%- include('../components/footer', { pageScript: 'ai-automation.js' }) %>

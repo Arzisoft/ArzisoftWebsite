@@ -24,7 +24,8 @@ const PAGES = [
   { template: 'devgrup',     out: 'devgrup/index.html',      title: 'DEVGRUP',     currentPage: 'devgrup' },
   { template: 'login',       out: 'login/index.html',        title: 'Login',       currentPage: 'login' },
   { template: 'get-started', out: 'get-started/index.html',  title: 'Get Started', currentPage: 'get-started' },
-  { template: 'resources',   out: 'resources/index.html',    title: 'Resources',   currentPage: 'resources' },
+  { template: 'resources',      out: 'resources/index.html',       title: 'Resources',              currentPage: 'resources' },
+  { template: 'ai-automation', out: 'ai-automation/index.html',  title: 'Automation Flow Designer', currentPage: 'ai' },
 ];
 
 function copyDir(src, dest) {
