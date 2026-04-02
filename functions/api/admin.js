@@ -38,12 +38,13 @@ export async function onRequestPost(context) {
       return respond({ logs: [], kv_available: false, note: 'KV not configured' });
     }
 
-    // List all log entries (prefix: log:)
-    var listed = await kv.list({ prefix: 'log:' });
-    var keys = listed.keys || [];
+    // List session: and legacy log: entries
+    var listedSession = await kv.list({ prefix: 'session:' });
+    var listedLog     = await kv.list({ prefix: 'log:' });
+    var keys = (listedSession.keys || []).concat(listedLog.keys || []);
 
-    // Fetch up to 200 most recent entries
-    keys = keys.slice(-200).reverse();
+    // Fetch up to 300 most recent entries
+    keys = keys.slice(-300);
 
     var logs = [];
     for (var i = 0; i < keys.length; i++) {

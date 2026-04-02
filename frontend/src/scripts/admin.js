@@ -150,6 +150,31 @@ document.addEventListener('DOMContentLoaded', function () {
       html += '</div></div>';
     }
 
+    // Metadata grid
+    var meta = [];
+    if (log.country || log.city)  meta.push(['Location',   [log.city, log.region, log.country].filter(Boolean).join(', ')]);
+    if (log.org)                  meta.push(['ISP / Org',  log.org]);
+    if (log.timezone)             meta.push(['Timezone',   log.timezone]);
+    if (log.deviceType)           meta.push(['Device',     log.deviceType]);
+    if (log.browser || log.os)    meta.push(['Browser',    [log.browser, log.os].filter(Boolean).join(' / ')]);
+    if (log.referrer)             meta.push(['Came from',  log.referrer]);
+    if (log.questionsAnswered != null) meta.push(['Questions answered', log.questionsAnswered + ' / 3']);
+    if (log.timeSpent != null)    meta.push(['Time on page', log.timeSpent + 's']);
+    if (log.scrollDepth != null)  meta.push(['Scroll depth', log.scrollDepth + '%']);
+    meta.push(['Popup shown',     log.popupShown ? 'Yes' : 'No']);
+    if (log.popupShown)           meta.push(['Popup dismissed', log.popupDismissed ? 'Yes (ignored)' : 'No (submitted or pending)']);
+
+    if (meta.length > 0) {
+      html += '<div style="margin-bottom:28px;display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
+      meta.forEach(function (item) {
+        html += '<div style="background:var(--bg-muted);border:1px solid var(--border);border-radius:8px;padding:10px 14px;">';
+        html += '<div style="font-size:10px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">' + escHtml(item[0]) + '</div>';
+        html += '<div style="font-size:13px;color:var(--text-secondary);word-break:break-all;">' + escHtml(String(item[1])) + '</div>';
+        html += '</div>';
+      });
+      html += '</div>';
+    }
+
     // Summary
     if (summary) {
       html += '<div style="margin-bottom:20px;padding:16px 20px;background:var(--bg-muted);border-radius:10px;border:1px solid var(--border);">';
@@ -189,7 +214,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function loadData(token) {
-    tbody.innerHTML = '<tr><td colspan="4" class="admin-table__empty">Loading...</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" class="admin-table__empty">Loading...</td></tr>';
 
     fetch('/api/admin', {
       method: 'POST',
@@ -225,7 +250,7 @@ document.addEventListener('DOMContentLoaded', function () {
           stat(topCat, 'Top automation category');
 
         if (allLogs.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="4" class="admin-table__empty">No data yet.</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="6" class="admin-table__empty">No data yet.</td></tr>';
           return;
         }
 
@@ -234,11 +259,17 @@ document.addEventListener('DOMContentLoaded', function () {
           var time = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
           var badge = log.contacted
             ? '<span class="admin-badge admin-badge--contacted">Contacted</span>'
-            : '<span class="admin-badge admin-badge--lead">Lead</span>';
+            : log.completed
+              ? '<span class="admin-badge admin-badge--lead">Flow Generated</span>'
+              : '<span class="admin-badge admin-badge--partial">Partial</span>';
+          var location = [log.city, log.country].filter(Boolean).join(', ') || '—';
+          var questions = log.questionsAnswered != null ? log.questionsAnswered + '/3' : '—';
           return '<tr class="admin-row" data-idx="' + i + '" style="cursor:pointer;">'
             + '<td style="white-space:nowrap;color:var(--text-muted);">' + time + '</td>'
             + '<td><span class="admin-cat">' + escHtml(log.category || '—') + '</span></td>'
+            + '<td style="font-size:12px;color:var(--text-muted);">' + escHtml(location) + '</td>'
             + '<td class="admin-msg">' + escHtml(log.message || '—') + '</td>'
+            + '<td style="white-space:nowrap;font-size:12px;color:var(--text-muted);">' + questions + '</td>'
             + '<td>' + badge + '</td>'
             + '</tr>';
         }).join('');
@@ -252,7 +283,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
       })
       .catch(function () {
-        tbody.innerHTML = '<tr><td colspan="4" class="admin-table__empty">Failed to load data.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="admin-table__empty">Failed to load data.</td></tr>';
       });
   }
 

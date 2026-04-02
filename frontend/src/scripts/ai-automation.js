@@ -23,6 +23,33 @@ document.addEventListener('DOMContentLoaded', function () {
   var history = [];
   var popupTriggered = false;
 
+  // Session tracking
+  var sessionId = Date.now().toString(36) + Math.random().toString(36).slice(2);
+  var sessionStart = Date.now();
+  var createdAt = new Date().toISOString();
+  var trackState = { popupShown: false, popupDismissed: false, scrolledToDiagram: false, scrollDepth: 0 };
+
+  function sendTrack() {
+    var payload = {
+      sessionId: sessionId,
+      timeSpent: Math.round((Date.now() - sessionStart) / 1000),
+      popupShown: trackState.popupShown,
+      popupDismissed: trackState.popupDismissed,
+      scrolledToDiagram: trackState.scrolledToDiagram,
+      scrollDepth: trackState.scrollDepth,
+    };
+    navigator.sendBeacon('/api/track', JSON.stringify(payload));
+  }
+
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'hidden') sendTrack();
+  });
+
+  window.addEventListener('scroll', function () {
+    var depth = Math.round((window.scrollY + window.innerHeight) / document.documentElement.scrollHeight * 100);
+    if (depth > trackState.scrollDepth) trackState.scrollDepth = depth;
+  }, { passive: true });
+
   mermaid.initialize({
     startOnLoad: false,
     securityLevel: 'loose',
@@ -145,7 +172,7 @@ document.addEventListener('DOMContentLoaded', function () {
     fetch('/api/automation', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messages: history }),
+      body: JSON.stringify({ messages: history, sessionId: sessionId, createdAt: createdAt }),
     })
       .then(function (res) {
         if (!res.ok) {
@@ -182,6 +209,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Modal open
   function openModal() {
+    trackState.popupShown = true;
     if (window._autoSummary) {
       modalSummary.textContent = window._autoSummary;
       modalSummary.classList.add('visible');
@@ -199,6 +227,7 @@ document.addEventListener('DOMContentLoaded', function () {
       entries.forEach(function (entry) {
         if (entry.isIntersecting && !popupTriggered) {
           popupTriggered = true;
+          trackState.scrolledToDiagram = true;
           observer.disconnect();
           setTimeout(openModal, 3000);
         }
@@ -208,9 +237,15 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // Modal close
-  modalClose.addEventListener('click', function () { modalOverlay.classList.remove('open'); });
+  function closeModal() {
+    if (modalOverlay.classList.contains('open') && !trackState.formSubmitted) {
+      trackState.popupDismissed = true;
+    }
+    modalOverlay.classList.remove('open');
+  }
+  modalClose.addEventListener('click', closeModal);
   modalOverlay.addEventListener('click', function (e) {
-    if (e.target === modalOverlay) modalOverlay.classList.remove('open');
+    if (e.target === modalOverlay) closeModal();
   });
 
   // Form submit
@@ -237,6 +272,7 @@ document.addEventListener('DOMContentLoaded', function () {
       .then(function (res) { return res.json(); })
       .then(function (data) {
         if (data.success) {
+          trackState.formSubmitted = true;
           contactForm.style.display = 'none';
           modalSuccess.style.display = 'flex';
           lucide.createIcons();
@@ -260,6 +296,10 @@ document.addEventListener('DOMContentLoaded', function () {
   resetBtn.addEventListener('click', function () {
     history = [];
     popupTriggered = false;
+    sessionId = Date.now().toString(36) + Math.random().toString(36).slice(2);
+    sessionStart = Date.now();
+    createdAt = new Date().toISOString();
+    trackState = { popupShown: false, popupDismissed: false, scrolledToDiagram: false, scrollDepth: 0 };
     messages.innerHTML = '';
     outputEmpty.style.display = 'flex';
     outputResult.style.display = 'none';

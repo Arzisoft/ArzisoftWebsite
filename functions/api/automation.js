@@ -15,6 +15,8 @@ export async function onRequestPost(context) {
       return respond({ error: 'messages array is required' }, 400);
     }
 
+    var sessionId = body.sessionId || null;
+
     var apiKey = env.NVIDIA_API_KEY_13B;
     if (!apiKey) {
       return respond({ error: 'AI service not configured' }, 503);
@@ -63,23 +65,67 @@ export async function onRequestPost(context) {
       ? data.choices[0].message.content.trim()
       : 'Sorry, could not generate a response.';
 
-    // Log to KV when a diagram is generated
-    if (reply.indexOf('---SUMMARY---') !== -1) {
-      var kv = env.AUTOMATION_KV;
-      if (kv) {
-        var category = extractCategory(messages);
-        var logKey = 'log:' + Date.now() + ':' + Math.random().toString(36).slice(2, 6);
-        var writePromise = kv.put(logKey, JSON.stringify({
-          message: messages[0] && messages[0].content ? messages[0].content : '',
-          messages: messages,
-          reply: reply,
-          category: category,
-          contacted: false,
-          createdAt: new Date().toISOString(),
-        }), { expirationTtl: 60 * 60 * 24 * 180 });
-        // waitUntil keeps the worker alive until the write completes after the response is sent
-        context.waitUntil(writePromise);
-      }
+    var isDiagram = reply.indexOf('---SUMMARY---') !== -1;
+    var kv = env.AUTOMATION_KV;
+
+    if (kv && sessionId) {
+      var cf = request.cf || {};
+      var ua = request.headers.get('user-agent') || '';
+      var parsed = parseUA(ua);
+      var questionsAnswered = messages.filter(function (m) { return m.role === 'user'; }).length;
+      var category = extractCategory(messages);
+
+      var entry = {
+        sessionId: sessionId,
+        message: messages[0] && messages[0].content ? messages[0].content : '',
+        messages: messages,
+        reply: isDiagram ? reply : null,
+        category: category,
+        questionsAnswered: questionsAnswered,
+        completed: isDiagram,
+        contacted: false,
+        createdAt: body.createdAt || new Date().toISOString(),
+        lastActiveAt: new Date().toISOString(),
+        // Location
+        country: cf.country || null,
+        city: cf.city || null,
+        region: cf.region || null,
+        timezone: cf.timezone || null,
+        // Network
+        org: cf.asOrganization || null,
+        // Device
+        deviceType: cf.deviceType || null,
+        browser: parsed.browser,
+        os: parsed.os,
+        // Source
+        referrer: request.headers.get('referer') || null,
+        // Page tracking — filled later by /api/track
+        timeSpent: null,
+        popupShown: false,
+        popupDismissed: false,
+        scrolledToDiagram: false,
+        scrollDepth: null,
+      };
+
+      var writePromise = kv.put(
+        'session:' + sessionId,
+        JSON.stringify(entry),
+        { expirationTtl: 60 * 60 * 24 * 180 }
+      );
+      context.waitUntil(writePromise);
+
+    } else if (kv && isDiagram && !sessionId) {
+      // Fallback for requests without sessionId — log completed flow only
+      var category2 = extractCategory(messages);
+      var legacyKey = 'log:' + Date.now() + ':' + Math.random().toString(36).slice(2, 6);
+      context.waitUntil(kv.put(legacyKey, JSON.stringify({
+        message: messages[0] && messages[0].content ? messages[0].content : '',
+        messages: messages,
+        reply: reply,
+        category: category2,
+        contacted: false,
+        createdAt: new Date().toISOString(),
+      }), { expirationTtl: 60 * 60 * 24 * 180 }));
     }
 
     return respond({ reply: reply });
@@ -87,6 +133,23 @@ export async function onRequestPost(context) {
   } catch (e) {
     return respond({ error: 'Crash: ' + String(e) }, 500);
   }
+}
+
+function parseUA(ua) {
+  var browser = 'Other', os = 'Other';
+  if (ua.indexOf('Edg') !== -1) browser = 'Edge';
+  else if (ua.indexOf('OPR') !== -1 || ua.indexOf('Opera') !== -1) browser = 'Opera';
+  else if (ua.indexOf('Chrome') !== -1) browser = 'Chrome';
+  else if (ua.indexOf('Firefox') !== -1) browser = 'Firefox';
+  else if (ua.indexOf('Safari') !== -1) browser = 'Safari';
+
+  if (ua.indexOf('iPhone') !== -1 || ua.indexOf('iPad') !== -1) os = 'iOS';
+  else if (ua.indexOf('Android') !== -1) os = 'Android';
+  else if (ua.indexOf('Windows') !== -1) os = 'Windows';
+  else if (ua.indexOf('Mac OS') !== -1) os = 'macOS';
+  else if (ua.indexOf('Linux') !== -1) os = 'Linux';
+
+  return { browser: browser, os: os };
 }
 
 function buildPrompt() {
