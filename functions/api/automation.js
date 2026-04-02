@@ -22,10 +22,14 @@ export async function onRequestPost(context) {
 
     var prompt = buildPrompt();
 
+    var controller = new AbortController();
+    var timeoutId = setTimeout(function() { controller.abort(); }, 20000);
+
     var claudeRes;
     try {
       claudeRes = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
+        signal: controller.signal,
         headers: {
           'Content-Type': 'application/json',
           'x-api-key': apiKey,
@@ -38,8 +42,10 @@ export async function onRequestPost(context) {
           messages: messages,
         }),
       });
+      clearTimeout(timeoutId);
     } catch (e) {
-      return respond({ error: 'fetch failed: ' + String(e) }, 502);
+      clearTimeout(timeoutId);
+      return respond({ error: 'fetch failed (possible timeout): ' + String(e) }, 502);
     }
 
     var status = claudeRes.status;
