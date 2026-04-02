@@ -24,9 +24,14 @@
           <h1 class="admin-dash__title">Automation Leads</h1>
           <p class="admin-dash__sub">Users who generated a flow — with or without contacting you.</p>
         </div>
-        <button id="logoutBtn" class="admin-logout">
-          <i data-lucide="log-out" style="width:14px;height:14px;"></i> Sign out
-        </button>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button id="testKvBtn" class="admin-logout" style="border-color:var(--border);">
+            <i data-lucide="database" style="width:14px;height:14px;"></i> Test Storage
+          </button>
+          <button id="logoutBtn" class="admin-logout">
+            <i data-lucide="log-out" style="width:14px;height:14px;"></i> Sign out
+          </button>
+        </div>
       </div>
 
       <div id="kvWarning" style="display:none;background:#fef3c7;border:1px solid #f59e0b;border-radius:10px;padding:14px 18px;margin-bottom:20px;font-size:13px;color:#92400e;">

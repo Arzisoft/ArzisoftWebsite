@@ -61,6 +61,22 @@ export async function onRequestPost(context) {
     return respond({ logs: logs, kv_available: true });
   }
 
+  // KV connectivity test
+  if (action === 'test-kv') {
+    var expected2 = await sha256(password + (env.ADMIN_SALT || 'arzisoft-admin-2026'));
+    if (body.token !== expected2) return respond({ error: 'Unauthorized' }, 401);
+    if (!kv) return respond({ ok: false, error: 'AUTOMATION_KV binding not found' });
+    var testKey = 'test:' + Date.now();
+    try {
+      await kv.put(testKey, 'ok', { expirationTtl: 60 });
+      var readBack = await kv.get(testKey);
+      await kv.delete(testKey);
+      return respond({ ok: readBack === 'ok', read_back: readBack });
+    } catch (e) {
+      return respond({ ok: false, error: String(e) });
+    }
+  }
+
   return respond({ error: 'Unknown action' }, 400);
 }
 

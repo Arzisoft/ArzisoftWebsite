@@ -64,18 +64,20 @@ export async function onRequestPost(context) {
       ? data.choices[0].message.content.trim()
       : 'Sorry, could not generate a response.';
 
-    // Log to KV when a diagram is generated (fire-and-forget)
+    // Log to KV when a diagram is generated
     if (reply.indexOf('---SUMMARY---') !== -1) {
       var kv = env.AUTOMATION_KV;
       if (kv) {
         var category = extractCategory(messages);
         var logKey = 'log:' + Date.now() + ':' + Math.random().toString(36).slice(2, 6);
-        kv.put(logKey, JSON.stringify({
+        var writePromise = kv.put(logKey, JSON.stringify({
           message: messages[0] && messages[0].content ? messages[0].content : '',
           category: category,
           contacted: false,
           createdAt: new Date().toISOString(),
-        }), { expirationTtl: 60 * 60 * 24 * 180 }).catch(function () {});
+        }), { expirationTtl: 60 * 60 * 24 * 180 });
+        // waitUntil keeps the worker alive until the write completes after the response is sent
+        context.waitUntil(writePromise);
       }
     }
 

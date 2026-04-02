@@ -4,7 +4,8 @@ document.addEventListener('DOMContentLoaded', function () {
   var loginForm = document.getElementById('loginForm');
   var pwInput   = document.getElementById('adminPassword');
   var loginErr  = document.getElementById('loginError');
-  var logoutBtn = document.getElementById('logoutBtn');
+  var logoutBtn  = document.getElementById('logoutBtn');
+  var testKvBtn  = document.getElementById('testKvBtn');
   var statsEl   = document.getElementById('adminStats');
   var tbody     = document.getElementById('adminTableBody');
 
@@ -39,6 +40,30 @@ document.addEventListener('DOMContentLoaded', function () {
       .catch(function () {
         loginErr.textContent = 'Connection error.';
         loginErr.style.display = 'block';
+      });
+  });
+
+  testKvBtn.addEventListener('click', function () {
+    var token = sessionStorage.getItem(TOKEN_KEY);
+    testKvBtn.disabled = true;
+    testKvBtn.textContent = 'Testing...';
+    fetch('/api/admin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'test-kv', token: token }),
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        testKvBtn.disabled = false;
+        testKvBtn.innerHTML = '<i data-lucide="database" style="width:14px;height:14px;"></i> Test Storage';
+        lucide.createIcons();
+        alert(d.ok ? 'KV storage is working correctly.' : 'KV error: ' + (d.error || JSON.stringify(d)));
+      })
+      .catch(function () {
+        testKvBtn.disabled = false;
+        testKvBtn.innerHTML = '<i data-lucide="database" style="width:14px;height:14px;"></i> Test Storage';
+        lucide.createIcons();
+        alert('Connection error during KV test.');
       });
   });
 
