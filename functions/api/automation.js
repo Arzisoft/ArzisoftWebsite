@@ -64,6 +64,21 @@ export async function onRequestPost(context) {
       ? data.choices[0].message.content.trim()
       : 'Sorry, could not generate a response.';
 
+    // Log to KV when a diagram is generated (fire-and-forget)
+    if (reply.indexOf('---SUMMARY---') !== -1) {
+      var kv = env.AUTOMATION_KV;
+      if (kv) {
+        var category = extractCategory(messages);
+        var logKey = 'log:' + Date.now() + ':' + Math.random().toString(36).slice(2, 6);
+        kv.put(logKey, JSON.stringify({
+          message: messages[0] && messages[0].content ? messages[0].content : '',
+          category: category,
+          contacted: false,
+          createdAt: new Date().toISOString(),
+        }), { expirationTtl: 60 * 60 * 24 * 180 }).catch(function () {});
+      }
+    }
+
     return respond({ reply: reply });
 
   } catch (e) {
@@ -102,6 +117,17 @@ function buildPrompt() {
     + '\n```'
     + '\n---END---'
     + '\n\nMERMAID RULES: flowchart TD only. Regular: A[FETCH: WhatsApp]. Decision: A{CONDITION: Valid?}. Start: A([TRIGGER: ...]). End: Z([END]). Arrows: A --> B or A -->|Yes| B. Max 12 nodes. No special chars.';
+}
+
+function extractCategory(messages) {
+  var text = messages.map(function (m) { return m.content || ''; }).join(' ').toLowerCase();
+  var src = 'general';
+  var sources = [['whatsapp','whatsapp'],['telegram','telegram'],['gmail','email'],['email','email'],['form','form'],['sms','sms'],['invoice','invoice']];
+  var dests = [['google sheets','gsheets'],['excel','excel'],['quickbooks','accounting'],['xero','accounting'],['accounting','accounting'],['zoho','crm'],['salesforce','crm'],['crm','crm'],['notion','notion']];
+  for (var i = 0; i < sources.length; i++) { if (text.indexOf(sources[i][0]) !== -1) { src = sources[i][1]; break; } }
+  var dst = 'general';
+  for (var j = 0; j < dests.length; j++) { if (text.indexOf(dests[j][0]) !== -1) { dst = dests[j][1]; break; } }
+  return src + '--' + dst;
 }
 
 function respond(body, status) {

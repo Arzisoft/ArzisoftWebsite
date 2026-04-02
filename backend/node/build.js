@@ -26,6 +26,7 @@ const PAGES = [
   { template: 'get-started', out: 'get-started/index.html',  title: 'Get Started', currentPage: 'get-started' },
   { template: 'resources',      out: 'resources/index.html',       title: 'Resources',              currentPage: 'resources' },
   { template: 'ai-automation', out: 'ai-automation/index.html',  title: 'Automation Flow Designer', currentPage: 'ai' },
+  { template: 'admin',         out: 'admin/index.html',          title: 'Admin',                    currentPage: '' },
 ];
 
 function copyDir(src, dest) {
