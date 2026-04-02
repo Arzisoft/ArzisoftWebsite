@@ -15,27 +15,25 @@ export async function onRequestPost(context) {
       return respond({ error: 'messages array is required' }, 400);
     }
 
-    var apiKey = env.NVIDIA_API_KEY_13B;
+    var apiKey = env.CF_AIG_TOKEN;
     if (!apiKey) {
       return respond({ error: 'AI service not configured' }, 503);
     }
 
-    // Build messages array with system prompt prepended
-    var nvidiaMessages = [{ role: 'system', content: buildPrompt() }].concat(messages);
+    var aigMessages = [{ role: 'system', content: buildPrompt() }].concat(messages);
 
     var aiRes;
     try {
-      aiRes = await fetch('https://integrate.api.nvidia.com/v1/chat/completions', {
+      aiRes = await fetch('https://gateway.ai.cloudflare.com/v1/579ab33e3967faef3adc970a2c19f0cc/arzisoft-ai/compat/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ' + apiKey,
         },
         body: JSON.stringify({
-          model: 'meta/llama-3.3-70b-instruct',
-          messages: nvidiaMessages,
+          model: 'anthropic/claude-sonnet-4-5',
+          messages: aigMessages,
           max_tokens: 1500,
-          temperature: 0.3,
         }),
       });
     } catch (e) {
