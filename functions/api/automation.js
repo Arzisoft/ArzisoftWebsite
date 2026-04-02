@@ -15,28 +15,26 @@ export async function onRequestPost(context) {
       return respond({ error: 'messages array is required' }, 400);
     }
 
-    var apiKey = env.ANTHROPIC_API_KEY;
+    var apiKey = env.NVIDIA_API_KEY_13B;
     if (!apiKey) {
       return respond({ error: 'AI service not configured' }, 503);
     }
 
-    // Filter to user/assistant only — Anthropic uses a top-level system field
-    var anthropicMessages = messages.filter(function (m) { return m.role === 'user' || m.role === 'assistant'; });
+    var nvidiaMessages = [{ role: 'system', content: buildPrompt() }].concat(messages);
 
     var aiRes;
     try {
-      aiRes = await fetch('https://gateway.ai.cloudflare.com/v1/579ab33e3967faef3adc970a2c19f0cc/arzisoft-ai/anthropic/v1/messages', {
+      aiRes = await fetch('https://integrate.api.nvidia.com/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-          'anthropic-version': '2023-06-01',
+          'Authorization': 'Bearer ' + apiKey,
         },
         body: JSON.stringify({
-          model: 'claude-3-5-haiku-20241022',
-          system: buildPrompt(),
-          messages: anthropicMessages,
+          model: 'meta/llama-3.3-70b-instruct',
+          messages: nvidiaMessages,
           max_tokens: 1500,
+          temperature: 0.3,
         }),
       });
     } catch (e) {
@@ -61,8 +59,8 @@ export async function onRequestPost(context) {
       return respond({ error: 'non-JSON response: ' + responseText.slice(0, 200) }, 502);
     }
 
-    var reply = data.content && data.content[0] && data.content[0].text
-      ? data.content[0].text.trim()
+    var reply = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content
+      ? data.choices[0].message.content.trim()
       : 'Sorry, could not generate a response.';
 
     // Log to KV when a diagram is generated
