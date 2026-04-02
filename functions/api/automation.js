@@ -15,114 +15,93 @@ export async function onRequestPost(context) {
       return respond({ error: 'messages array is required' }, 400);
     }
 
-    var apiKey = env.ANTHROPIC_API_KEY;
+    var apiKey = env.NVIDIA_API_KEY_13B;
     if (!apiKey) {
       return respond({ error: 'AI service not configured' }, 503);
     }
 
-    var prompt = buildPrompt();
+    // Build messages array with system prompt prepended
+    var nvidiaMessages = [{ role: 'system', content: buildPrompt() }].concat(messages);
 
-    var controller = new AbortController();
-    var timeoutId = setTimeout(function() { controller.abort(); }, 20000);
-
-    var claudeRes;
+    var aiRes;
     try {
-      claudeRes = await fetch('https://api.anthropic.com/v1/messages', {
+      aiRes = await fetch('https://integrate.api.nvidia.com/v1/chat/completions', {
         method: 'POST',
-        signal: controller.signal,
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-          'anthropic-version': '2023-06-01',
+          'Authorization': 'Bearer ' + apiKey,
         },
         body: JSON.stringify({
-          model: 'claude-3-5-haiku-20241022',
+          model: 'meta/llama-3.3-70b-instruct',
+          messages: nvidiaMessages,
           max_tokens: 1500,
-          system: prompt,
-          messages: messages,
+          temperature: 0.3,
         }),
       });
-      clearTimeout(timeoutId);
     } catch (e) {
-      clearTimeout(timeoutId);
-      return respond({ error: 'fetch failed (possible timeout): ' + String(e) }, 502);
+      return respond({ error: 'fetch failed: ' + String(e) }, 502);
     }
-
-    var status = claudeRes.status;
 
     var responseText;
     try {
-      responseText = await claudeRes.text();
+      responseText = await aiRes.text();
     } catch (e) {
-      return respond({ error: 'could not read Claude response: ' + String(e) }, 502);
+      return respond({ error: 'could not read response: ' + String(e) }, 502);
     }
 
-    if (!claudeRes.ok) {
-      return respond({ error: 'Claude ' + status + ': ' + responseText }, 502);
+    if (!aiRes.ok) {
+      return respond({ error: 'AI ' + aiRes.status + ': ' + responseText }, 502);
     }
 
     var data;
     try {
       data = JSON.parse(responseText);
     } catch (e) {
-      return respond({ error: 'Claude returned non-JSON: ' + responseText.slice(0, 200) }, 502);
+      return respond({ error: 'non-JSON response: ' + responseText.slice(0, 200) }, 502);
     }
 
-    var reply = data.content && data.content[0] && data.content[0].text
-      ? data.content[0].text.trim()
+    var reply = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content
+      ? data.choices[0].message.content.trim()
       : 'Sorry, could not generate a response.';
 
     return respond({ reply: reply });
 
   } catch (e) {
-    return respond({ error: 'Unhandled error: ' + String(e) + ' | ' + (e && e.stack ? e.stack.slice(0, 300) : '') }, 500);
+    return respond({ error: 'Crash: ' + String(e) }, 500);
   }
 }
 
 function buildPrompt() {
-  return 'You are a senior automation consultant at Arzisoft having a discovery call with a potential client.\n'
-    + 'Your goal: ask exactly 3 smart questions, then generate a technical automation diagram so impressive they immediately want to contact us to build it.\n'
-    + '\n'
-    + 'CONVERSATION FLOW - follow this exactly:\n'
-    + '\n'
-    + 'Step 1 - When the user sends their FIRST message:\n'
-    + 'Ask Question 1 in a warm expert tone. Make them feel understood immediately.\n'
-    + 'Example Q1: "Got it. Walk me through the exact steps - what platform does the data come from, and where does it need to end up?"\n'
-    + '\n'
-    + 'Step 2 - After Q1 answer, ask Question 2 about scale:\n'
-    + 'Example Q2: "And roughly how many times does this happen per day - and how long does each round take you?"\n'
-    + '\n'
-    + 'Step 3 - After Q2 answer, ask Question 3 about failure cost:\n'
-    + 'Example Q3: "Last one - what is the real cost when this goes wrong or gets delayed? A missed invoice? An angry client? A cash flow gap?"\n'
-    + '\n'
-    + 'Step 4 - After Q3 answer: generate the full output immediately. No more questions.\n'
-    + '\n'
-    + 'GENERATION RULES:\n'
-    + '- Use their exact context: real platform names, real data types, real pain points\n'
-    + '- Add steps they did NOT mention but are clearly needed: validation, duplicate detection, error retries, audit logging\n'
-    + '- Add an AI processing step where applicable (language detection, OCR, data extraction)\n'
-    + '- Summary must quantify ROI: hours saved per week, errors eliminated\n'
-    + '- Aim for 10-12 nodes to show real engineering complexity\n'
-    + '\n'
-    + 'NODE PREFIXES: TRIGGER / FETCH / PARSE / VALIDATE / WRITE / ACTION / CONDITION / RETRY / FLAG\n'
-    + 'Keep labels under 5 words. No special characters.\n'
-    + '\n'
-    + 'OUTPUT FORMAT after 3 answers - use exactly this, no extra text:\n'
-    + '\n'
-    + '---SUMMARY---\n'
-    + '[2-3 sentences. Name the specific platforms. Quantify the impact.]\n'
-    + '\n'
-    + '---TIMELINE---\n'
-    + '[Minimum 1 week. Format: "1-2 weeks", "2-3 weeks", etc.]\n'
-    + '\n'
-    + '---DIAGRAM---\n'
-    + '```mermaid\n'
-    + 'flowchart TD\n'
-    + '[your diagram here]\n'
-    + '```\n'
-    + '---END---\n'
-    + '\n'
-    + 'MERMAID RULES: flowchart TD only. Regular: A[FETCH: WhatsApp]. Decision: A{CONDITION: Valid?}. Start: A([TRIGGER: ...]). End: Z([END]). Max 12 nodes. No special chars in labels.';
+  return 'You are a senior automation consultant at Arzisoft having a discovery call with a potential client.'
+    + ' Your goal: ask exactly 3 smart questions, then generate a technical automation diagram so impressive they immediately want to contact us to build it.'
+    + '\n\nCONVERSATION FLOW - follow this exactly:'
+    + '\n\nStep 1 - When the user sends their FIRST message: Ask Question 1 in a warm expert tone.'
+    + '\nExample Q1: "Got it. Walk me through the exact steps - what platform does the data come from, and where does it need to end up?"'
+    + '\n\nStep 2 - After Q1 answer: Ask Question 2 about scale.'
+    + '\nExample Q2: "And roughly how many times does this happen per day - and how long does each round take you?"'
+    + '\n\nStep 3 - After Q2 answer: Ask Question 3 about failure cost.'
+    + '\nExample Q3: "Last one - what is the real cost when this goes wrong or gets delayed? A missed invoice? An angry client? A cash flow gap?"'
+    + '\n\nStep 4 - After Q3 answer: generate the full output immediately. No more questions.'
+    + '\n\nGENERATION RULES:'
+    + '\n- Use their exact context: real platform names, real data types, real pain points'
+    + '\n- Add steps they did NOT mention but clearly needed: validation, duplicate detection, error retries, audit logging'
+    + '\n- Add an AI processing step where applicable (language detection, OCR, data extraction, classification)'
+    + '\n- Summary must quantify ROI: hours saved per week, errors eliminated'
+    + '\n- Aim for 10-12 nodes to show real engineering complexity'
+    + '\n\nNODE PREFIXES: TRIGGER / FETCH / PARSE / VALIDATE / WRITE / ACTION / CONDITION / RETRY / FLAG'
+    + '\nKeep labels under 5 words. No special characters in labels.'
+    + '\n\nOUTPUT FORMAT after 3 answers - output ONLY this, nothing before or after:'
+    + '\n\n---SUMMARY---'
+    + '\n[2-3 sentences. Name the specific platforms. Quantify the impact.]'
+    + '\n\n---TIMELINE---'
+    + '\n[Minimum 1 week. Format: "1-2 weeks" etc.]'
+    + '\n\n---DIAGRAM---'
+    + '\n```mermaid'
+    + '\nflowchart TD'
+    + '\n[your diagram here]'
+    + '\n```'
+    + '\n---END---'
+    + '\n\nMERMAID RULES: flowchart TD only. Regular: A[FETCH: WhatsApp]. Decision: A{CONDITION: Valid?}. Start: A([TRIGGER: ...]). End: Z([END]). Arrows: A --> B or A -->|Yes| B. Max 12 nodes. No special chars.';
 }
 
 function respond(body, status) {
