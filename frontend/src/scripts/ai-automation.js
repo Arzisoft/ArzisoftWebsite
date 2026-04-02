@@ -118,8 +118,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Store for modal
-    window._autoSummary    = summary;
-    window._autoComplexity = complexity;
+    window._autoSummary = summary;
 
     // Show output panel
     outputEmpty.style.display = 'none';
@@ -145,9 +144,14 @@ document.addEventListener('DOMContentLoaded', function () {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ messages: history }),
     })
-      .then(function (res) { return res.json(); })
+      .then(function (res) {
+        if (!res.ok) {
+          return res.text().then(function (t) { throw new Error(res.status + ': ' + t.slice(0, 120)); });
+        }
+        return res.json();
+      })
       .then(function (data) {
-        var reply = data.reply || 'Sorry, I could not generate a response.';
+        var reply = data.reply || data.error || 'Sorry, I could not generate a response.';
         history.push({ role: 'assistant', content: reply });
 
         var bubble = typing.querySelector('.message__bubble');
@@ -161,9 +165,9 @@ document.addEventListener('DOMContentLoaded', function () {
         typing.removeAttribute('data-typing');
         messages.scrollTop = messages.scrollHeight;
       })
-      .catch(function () {
+      .catch(function (err) {
         var bubble = typing.querySelector('.message__bubble');
-        bubble.textContent = 'Connection error. Please try again.';
+        bubble.textContent = 'Error: ' + (err && err.message ? err.message : 'Connection failed. Please try again.');
         typing.removeAttribute('data-typing');
       });
   }
@@ -211,7 +215,6 @@ document.addEventListener('DOMContentLoaded', function () {
         email: email,
         phone: phone,
         summary: window._autoSummary || '',
-        complexity: window._autoComplexity || '',
       }),
     })
       .then(function (res) { return res.json(); })
