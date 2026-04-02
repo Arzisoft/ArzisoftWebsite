@@ -103,8 +103,9 @@ function buildPrompt() {
     + '\n- Add an AI processing step where applicable (language detection, OCR, data extraction, classification)'
     + '\n- Summary must quantify ROI: hours saved per week, errors eliminated'
     + '\n- Aim for 10-12 nodes to show real engineering complexity'
-    + '\n\nNODE PREFIXES: TRIGGER / FETCH / PARSE / VALIDATE / WRITE / ACTION / CONDITION / RETRY / FLAG'
-    + '\nKeep labels under 5 words. No special characters in labels.'
+    + '\n\nNODE LABEL STYLE: Plain business language. No technical jargon. Write what actually happens in plain words.'
+    + '\nExamples: "New WhatsApp message arrives" / "Is this an invoice?" / "Pull out order details" / "Save to Excel" / "Send confirmation to client" / "Something went wrong - retry" / "Mark as done"'
+    + '\nKeep each label under 6 words. No special characters.'
     + '\n\nOUTPUT FORMAT after 3 answers - output ONLY this, nothing before or after:'
     + '\n\n---SUMMARY---'
     + '\n[2-3 sentences. Name the specific platforms. Quantify the impact.]'
@@ -116,7 +117,7 @@ function buildPrompt() {
     + '\n[your diagram here]'
     + '\n```'
     + '\n---END---'
-    + '\n\nMERMAID RULES: flowchart TD only. Regular: A[FETCH: WhatsApp]. Decision: A{CONDITION: Valid?}. Start: A([TRIGGER: ...]). End: Z([END]). Arrows: A --> B or A -->|Yes| B. Max 12 nodes. No special chars.';
+    + '\n\nMERMAID RULES: flowchart TD only. Regular: A[Save to Excel]. Decision: A{Is this an invoice?}. Start: A([New message arrives]). End: Z([Done]). Arrows: A --> B or A -->|Yes| B. Max 12 nodes. No special chars.';
 }
 
 function extractCategory(messages) {
