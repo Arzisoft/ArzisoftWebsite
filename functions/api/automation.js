@@ -15,24 +15,27 @@ export async function onRequestPost(context) {
       return respond({ error: 'messages array is required' }, 400);
     }
 
-    var apiKey = env.CF_AIG_TOKEN;
+    var apiKey = env.ANTHROPIC_API_KEY;
     if (!apiKey) {
       return respond({ error: 'AI service not configured' }, 503);
     }
 
-    var aigMessages = [{ role: 'system', content: buildPrompt() }].concat(messages);
+    // Filter to user/assistant only — Anthropic uses a top-level system field
+    var anthropicMessages = messages.filter(function (m) { return m.role === 'user' || m.role === 'assistant'; });
 
     var aiRes;
     try {
-      aiRes = await fetch('https://gateway.ai.cloudflare.com/v1/579ab33e3967faef3adc970a2c19f0cc/arzisoft-ai/compat/chat/completions', {
+      aiRes = await fetch('https://gateway.ai.cloudflare.com/v1/579ab33e3967faef3adc970a2c19f0cc/arzisoft-ai/anthropic/v1/messages', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + apiKey,
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
         },
         body: JSON.stringify({
-          model: 'anthropic/claude-sonnet-4-5',
-          messages: aigMessages,
+          model: 'claude-3-5-haiku-20241022',
+          system: buildPrompt(),
+          messages: anthropicMessages,
           max_tokens: 1500,
         }),
       });
@@ -58,8 +61,8 @@ export async function onRequestPost(context) {
       return respond({ error: 'non-JSON response: ' + responseText.slice(0, 200) }, 502);
     }
 
-    var reply = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content
-      ? data.choices[0].message.content.trim()
+    var reply = data.content && data.content[0] && data.content[0].text
+      ? data.content[0].text.trim()
       : 'Sorry, could not generate a response.';
 
     // Log to KV when a diagram is generated
