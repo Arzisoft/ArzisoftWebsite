@@ -22,16 +22,10 @@ NODE LABEL STYLE — make it look technical and professional:
 OUTPUT FORMAT — use exactly this structure, no extra text:
 
 ---SUMMARY---
-[2-3 sentences. Plain English. What the automation does and what it replaces.]
-
----COMPLEXITY---
-[Simple / Medium / Complex] — [one sentence: number of integrations and why]
-
----STACK---
-[Comma-separated list of the technical components Arzisoft will custom-build. Never mention third-party no-code tools like Zapier, Make.com, n8n, Power Automate, or Integromat — Arzisoft builds everything from scratch. Use terms like: WhatsApp Business API, Custom Webhook Server, REST API Integration, Custom Data Parser, Excel REST API, Zoho CRM API, Custom Notification Service, Arzisoft Integration Layer]
+[2 sentences max. Be direct and specific — what manual pain does this eliminate and what does the system do instead. Sound like a senior engineer who understood the problem immediately. No fluff, no "this automation will..."]
 
 ---TIMELINE---
-[Realistic build estimate. E.g.: 3–5 business days]
+[Always minimum 1 week. Includes build, testing, and deployment. Format as a plain range only. Examples: "1 week", "1–2 weeks", "2–3 weeks". Never below 1 week regardless of simplicity.]
 
 ---DIAGRAM---
 \`\`\`mermaid
@@ -41,7 +35,7 @@ flowchart TD
 ---END---
 
 MERMAID RULES — follow exactly:
-- flowchart TD only
+- flowchart TD only (top to bottom, vertical)
 - Regular steps: A[FETCH: Gmail Inbox]
 - Decisions: A{CONDITION: Orders Found?}
 - Start: A([TRIGGER: Manual / Scheduled])

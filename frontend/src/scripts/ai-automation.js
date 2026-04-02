@@ -5,14 +5,12 @@ document.addEventListener('DOMContentLoaded', function () {
   var resetBtn   = document.getElementById('resetBtn');
   var outputEmpty  = document.getElementById('outputEmpty');
   var outputResult = document.getElementById('outputResult');
-  var outputSummary         = document.getElementById('outputSummary');
-  var outputStack           = document.getElementById('outputStack');
-  var outputDiagram         = document.getElementById('outputDiagram');
-  var diagramError          = document.getElementById('diagramError');
-  var diagramMeta           = document.getElementById('diagramMeta');
-  var outputTimeline        = document.getElementById('outputTimeline');
-  var outputComplexityBadge = document.getElementById('outputComplexityBadge');
-  var outputIntegrations    = document.getElementById('outputIntegrations');
+  var outputSummary      = document.getElementById('outputSummary');
+  var outputDiagram      = document.getElementById('outputDiagram');
+  var diagramError       = document.getElementById('diagramError');
+  var diagramMeta        = document.getElementById('diagramMeta');
+  var outputTimeline     = document.getElementById('outputTimeline');
+  var outputTimelineWrap = document.getElementById('outputTimelineWrap');
   var ctaBtn           = document.getElementById('ctaBtn');
   var modalOverlay     = document.getElementById('modalOverlay');
   var modalClose       = document.getElementById('modalClose');
@@ -81,39 +79,23 @@ document.addEventListener('DOMContentLoaded', function () {
     // Check if reply contains the output markers
     if (reply.indexOf('---SUMMARY---') === -1) return false;
 
-    var summaryMatch    = reply.match(/---SUMMARY---([\s\S]*?)---COMPLEXITY---/);
-    var complexityMatch = reply.match(/---COMPLEXITY---([\s\S]*?)---STACK---/);
-    var stackMatch      = reply.match(/---STACK---([\s\S]*?)---TIMELINE---/);
-    var timelineMatch   = reply.match(/---TIMELINE---([\s\S]*?)---DIAGRAM---/);
-    var diagramMatch    = reply.match(/```mermaid([\s\S]*?)```/);
+    var summaryMatch  = reply.match(/---SUMMARY---([\s\S]*?)---TIMELINE---/);
+    var timelineMatch = reply.match(/---TIMELINE---([\s\S]*?)---DIAGRAM---/);
+    var diagramMatch  = reply.match(/```mermaid([\s\S]*?)```/);
 
     if (!summaryMatch || !diagramMatch) return false;
 
-    var summary    = summaryMatch[1].trim();
-    var complexity = complexityMatch ? complexityMatch[1].trim() : '';
-    var stack      = stackMatch      ? stackMatch[1].trim()      : '';
-    var timeline   = timelineMatch   ? timelineMatch[1].trim()   : '';
-    var diagram    = diagramMatch[1].trim();
+    var summary  = summaryMatch[1].trim();
+    var timeline = timelineMatch ? timelineMatch[1].trim() : '';
+    var diagram  = diagramMatch[1].trim();
 
     // Summary
     outputSummary.textContent = summary;
 
-    // Tech stack badges
-    if (stack) {
-      outputStack.innerHTML = stack.split(',').map(function (s) {
-        return '<span class="stack-badge">' + s.trim() + '</span>';
-      }).join('');
-    }
-
-    // Stats row
-    if (timeline) outputTimeline.textContent = timeline;
-    if (complexity) {
-      var level = complexity.split('—')[0].trim();
-      outputComplexityBadge.textContent = level;
-    }
-    if (stack) {
-      var count = stack.split(',').length;
-      outputIntegrations.textContent = count + ' API' + (count !== 1 ? 's' : '');
+    // Timeline
+    if (timeline) {
+      outputTimeline.textContent = timeline;
+      outputTimelineWrap.style.display = 'flex';
     }
 
     // Diagram topbar meta

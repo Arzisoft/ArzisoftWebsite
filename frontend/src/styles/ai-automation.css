@@ -262,35 +262,31 @@
   font-size: 13px; color: #ef4444; margin-top: 8px;
 }
 
-/* Stats row */
-.output-section--row {
-  flex-direction: row !important;
-  gap: 0 !important;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  overflow: hidden;
-}
-.output-stat {
-  flex: 1;
+/* Timeline strip */
+.output-timeline {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 16px;
-  border-right: 1px solid var(--border);
+  align-items: center;
+  gap: 8px;
+  padding: 14px 16px;
+  background: var(--bg-muted);
+  border: 1px solid var(--border);
+  border-radius: 10px;
 }
-.output-stat:last-child { border-right: none; }
-.output-stat__label {
-  font-size: 10px;
-  font-weight: 600;
+.output-timeline__label {
+  font-size: 12px;
+  font-weight: 500;
   color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
 }
-.output-stat__value {
+.output-timeline__value {
   font-family: 'JetBrains Mono', 'Courier New', monospace;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-primary);
+}
+.output-timeline__note {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-left: auto;
 }
 
 /* CTA */
