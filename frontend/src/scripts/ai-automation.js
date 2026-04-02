@@ -261,6 +261,6 @@ document.addEventListener('DOMContentLoaded', function () {
     outputEmpty.style.display = 'flex';
     outputResult.style.display = 'none';
     outputDiagram.innerHTML = '';
-    appendMessage('ai', 'Hey! I\'m going to help you map out your automation. Let\'s start simple — what task are you doing manually right now?\n\nWalk me through it step by step — what do you open, click, copy, fill in?\n\nExample: "Every morning I open Gmail, find new orders, copy them into a Google Sheet, then send each customer a WhatsApp message."', false);
+    appendMessage('ai', 'Describe any manual task and I\'ll generate your full automation flow instantly — no back and forth.\n\nExample: "Every morning I get WhatsApp invoices and manually enter them into an Excel sheet."', false);
   });
 });
