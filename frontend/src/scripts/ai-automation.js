@@ -118,8 +118,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Store for modal
-    window._autoSummary    = summary;
-    window._autoComplexity = complexity;
+    window._autoSummary = summary;
 
     // Show output panel
     outputEmpty.style.display = 'none';
@@ -211,7 +210,6 @@ document.addEventListener('DOMContentLoaded', function () {
         email: email,
         phone: phone,
         summary: window._autoSummary || '',
-        complexity: window._autoComplexity || '',
       }),
     })
       .then(function (res) { return res.json(); })
