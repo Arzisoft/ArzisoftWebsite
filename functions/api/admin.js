@@ -43,9 +43,6 @@ export async function onRequestPost(context) {
     var listedLog     = await kv.list({ prefix: 'log:' });
     var keys = (listedSession.keys || []).concat(listedLog.keys || []);
 
-    // Fetch up to 300 most recent entries
-    keys = keys.slice(-300);
-
     var logs = [];
     for (var i = 0; i < keys.length; i++) {
       try {
@@ -54,10 +51,11 @@ export async function onRequestPost(context) {
       } catch (e) { /* skip */ }
     }
 
-    // Sort newest first
+    // Sort newest first, then limit to 300
     logs.sort(function (a, b) {
       return new Date(b.createdAt) - new Date(a.createdAt);
     });
+    logs = logs.slice(0, 300);
 
     return respond({ logs: logs, kv_available: true });
   }

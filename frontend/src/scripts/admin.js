@@ -98,7 +98,7 @@ document.addEventListener('DOMContentLoaded', function () {
     modal.style.display = 'block';
 
     // Render mermaid diagram if present
-    var diagramCode = extractSection(log.reply || '', 'DIAGRAM');
+    var diagramCode = extractSection(replyText, 'DIAGRAM');
     if (diagramCode) {
       var match = diagramCode.match(/```mermaid\s*([\s\S]*?)```/);
       var code = match ? match[1].trim() : diagramCode.trim();
@@ -116,9 +116,10 @@ document.addEventListener('DOMContentLoaded', function () {
   function renderDetail(log) {
     var date = new Date(log.createdAt);
     var time = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    var summary = extractSection(log.reply || '', 'SUMMARY');
-    var timeline = extractSection(log.reply || '', 'TIMELINE');
-    var hasDiagram = (log.reply || '').indexOf('```mermaid') !== -1;
+    var replyText = log.reply || '';
+    var summary = extractSection(replyText, 'SUMMARY');
+    var timeline = extractSection(replyText, 'TIMELINE');
+    var hasDiagram = replyText.indexOf('```mermaid') !== -1;
 
     var html = '';
 
@@ -132,6 +133,9 @@ document.addEventListener('DOMContentLoaded', function () {
     html += '</div>';
 
     // Conversation
+    if (!log.messages || log.messages.length === 0) {
+      html += '<p style="font-size:13px;color:var(--text-muted);margin-bottom:20px;">No conversation recorded for this session.</p>';
+    }
     if (log.messages && log.messages.length > 0) {
       html += '<div style="margin-bottom:28px;">';
       html += '<h3 style="font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:14px;">Conversation</h3>';

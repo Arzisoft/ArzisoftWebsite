@@ -38,7 +38,8 @@ document.addEventListener('DOMContentLoaded', function () {
       scrolledToDiagram: trackState.scrolledToDiagram,
       scrollDepth: trackState.scrollDepth,
     };
-    navigator.sendBeacon('/api/track', JSON.stringify(payload));
+    var blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
+    navigator.sendBeacon('/api/track', blob);
   }
 
   document.addEventListener('visibilitychange', function () {
@@ -263,6 +264,7 @@ document.addEventListener('DOMContentLoaded', function () {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        sessionId: sessionId,
         name: name,
         email: email,
         phone: phone,
@@ -299,7 +301,7 @@ document.addEventListener('DOMContentLoaded', function () {
     sessionId = Date.now().toString(36) + Math.random().toString(36).slice(2);
     sessionStart = Date.now();
     createdAt = new Date().toISOString();
-    trackState = { popupShown: false, popupDismissed: false, scrolledToDiagram: false, scrollDepth: 0 };
+    trackState = { popupShown: false, popupDismissed: false, scrolledToDiagram: false, scrollDepth: 0, formSubmitted: false };
     messages.innerHTML = '';
     outputEmpty.style.display = 'flex';
     outputResult.style.display = 'none';

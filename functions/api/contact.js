@@ -1,5 +1,5 @@
 export async function onRequestPost(context) {
-  const { request, env } = context;
+  const { request, env, waitUntil } = context;
 
   let body;
   try {
@@ -77,6 +77,20 @@ export async function onRequestPost(context) {
     const err = await resendRes.text();
     console.error('Resend error:', err);
     return json({ error: 'Failed to send email: ' + err }, 502);
+  }
+
+  // Mark session as contacted in KV
+  var kv = env.AUTOMATION_KV;
+  if (kv && body.sessionId) {
+    var sessionKey = 'session:' + body.sessionId;
+    try {
+      var existing = await kv.get(sessionKey, 'json');
+      if (existing) {
+        existing.contacted = true;
+        context.waitUntil(kv.put(sessionKey, JSON.stringify(existing), { expirationTtl: 60 * 60 * 24 * 180 }));
+
+      }
+    } catch (e) { /* non-critical */ }
   }
 
   return json({ success: true });
