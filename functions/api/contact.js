@@ -76,7 +76,7 @@ export async function onRequestPost(context) {
   if (!resendRes.ok) {
     const err = await resendRes.text();
     console.error('Resend error:', err);
-    return json({ error: 'Failed to send email' }, 502);
+    return json({ error: 'Failed to send email: ' + err }, 502);
   }
 
   return json({ success: true });
