@@ -74,6 +74,11 @@ document.addEventListener('DOMContentLoaded', function () {
           return;
         }
 
+        if (d.kv_available === false) {
+          var warn = document.getElementById('kvWarning');
+          if (warn) warn.style.display = 'block';
+        }
+
         var logs = d.logs;
         var total = logs.length;
         var contacted = logs.filter(function (l) { return l.contacted; }).length;

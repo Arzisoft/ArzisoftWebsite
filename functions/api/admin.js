@@ -35,7 +35,7 @@ export async function onRequestPost(context) {
     }
 
     if (!kv) {
-      return respond({ logs: [], note: 'KV not configured' });
+      return respond({ logs: [], kv_available: false, note: 'KV not configured' });
     }
 
     // List all log entries (prefix: log:)
@@ -58,7 +58,7 @@ export async function onRequestPost(context) {
       return new Date(b.createdAt) - new Date(a.createdAt);
     });
 
-    return respond({ logs: logs });
+    return respond({ logs: logs, kv_available: true });
   }
 
   return respond({ error: 'Unknown action' }, 400);
