@@ -224,17 +224,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function schedulePopup() {
     if (popupTriggered) return;
-    var observer = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (entry.isIntersecting && !popupTriggered) {
-          popupTriggered = true;
-          trackState.scrolledToDiagram = true;
-          observer.disconnect();
-          setTimeout(openModal, 3000);
-        }
-      });
-    }, { threshold: 0.3 });
-    observer.observe(outputDiagram);
+    function onScroll() {
+      var distFromBottom = document.documentElement.scrollHeight - window.scrollY - window.innerHeight;
+      if (distFromBottom < 60 && !popupTriggered) {
+        popupTriggered = true;
+        trackState.scrolledToDiagram = true;
+        window.removeEventListener('scroll', onScroll);
+        openModal();
+      }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
   }
 
   // Modal close
