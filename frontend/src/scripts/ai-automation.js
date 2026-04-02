@@ -9,7 +9,14 @@ document.addEventListener('DOMContentLoaded', function () {
   var outputComplexity = document.getElementById('outputComplexity');
   var outputDiagram    = document.getElementById('outputDiagram');
   var diagramError     = document.getElementById('diagramError');
-  var ctaEmail         = document.getElementById('ctaEmail');
+  var ctaBtn           = document.getElementById('ctaBtn');
+  var modalOverlay     = document.getElementById('modalOverlay');
+  var modalClose       = document.getElementById('modalClose');
+  var modalSummary     = document.getElementById('modalSummary');
+  var contactForm      = document.getElementById('contactForm');
+  var submitBtn        = document.getElementById('submitBtn');
+  var modalError       = document.getElementById('modalError');
+  var modalSuccess     = document.getElementById('modalSuccess');
 
   // Conversation history sent to Claude
   var history = [];
@@ -85,10 +92,9 @@ document.addEventListener('DOMContentLoaded', function () {
       diagramError.style.display = 'block';
     }
 
-    // Pre-fill email with summary
-    var subject = encodeURIComponent('Automation Flow Request');
-    var emailBody = encodeURIComponent('Hi Arzisoft,\n\nI used your Automation Flow Designer and got this result:\n\n' + summary + '\n\nComplexity: ' + complexity + '\n\nI\'d like to discuss building this for my business.');
-    ctaEmail.href = 'mailto:arzisoft@arzisoft.com?subject=' + subject + '&body=' + emailBody;
+    // Store for modal
+    window._autoSummary    = summary;
+    window._autoComplexity = complexity;
 
     // Show output panel
     outputEmpty.style.display = 'none';
@@ -140,6 +146,70 @@ document.addEventListener('DOMContentLoaded', function () {
   send.addEventListener('click', sendMessage);
   input.addEventListener('keydown', function (e) {
     if (e.key === 'Enter') sendMessage();
+  });
+
+  // Modal open
+  ctaBtn.addEventListener('click', function () {
+    if (window._autoSummary) {
+      modalSummary.textContent = window._autoSummary;
+      modalSummary.classList.add('visible');
+    }
+    contactForm.style.display = 'flex';
+    modalSuccess.style.display = 'none';
+    modalError.style.display = 'none';
+    modalOverlay.classList.add('open');
+    lucide.createIcons();
+  });
+
+  // Modal close
+  modalClose.addEventListener('click', function () { modalOverlay.classList.remove('open'); });
+  modalOverlay.addEventListener('click', function (e) {
+    if (e.target === modalOverlay) modalOverlay.classList.remove('open');
+  });
+
+  // Form submit
+  contactForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var name  = document.getElementById('fieldName').value.trim();
+    var email = document.getElementById('fieldEmail').value.trim();
+    var phone = document.getElementById('fieldPhone').value.trim();
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Sending...';
+    modalError.style.display = 'none';
+
+    fetch('/api/contact', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: name,
+        email: email,
+        phone: phone,
+        summary: window._autoSummary || '',
+        complexity: window._autoComplexity || '',
+      }),
+    })
+      .then(function (res) { return res.json(); })
+      .then(function (data) {
+        if (data.success) {
+          contactForm.style.display = 'none';
+          modalSuccess.style.display = 'flex';
+          lucide.createIcons();
+        } else {
+          modalError.textContent = data.error || 'Something went wrong. Please try again.';
+          modalError.style.display = 'block';
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<i data-lucide="send" style="width:15px;height:15px;"></i> Send request';
+          lucide.createIcons();
+        }
+      })
+      .catch(function () {
+        modalError.textContent = 'Connection error. Please try again.';
+        modalError.style.display = 'block';
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i data-lucide="send" style="width:15px;height:15px;"></i> Send request';
+        lucide.createIcons();
+      });
   });
 
   resetBtn.addEventListener('click', function () {

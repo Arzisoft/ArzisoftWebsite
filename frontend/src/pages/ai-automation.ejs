@@ -94,10 +94,10 @@
           <div class="output-cta">
             <p class="output-cta__title">Want us to build this for you?</p>
             <p class="output-cta__sub">We can have this running in days, not months.</p>
-            <a href="mailto:arzisoft@arzisoft.com" id="ctaEmail" class="btn-primary">
+            <button id="ctaBtn" class="btn-primary" style="width:100%;justify-content:center;">
               <i data-lucide="mail" style="width:16px;height:16px;"></i>
-              Email us to build this
-            </a>
+              Get in touch
+            </button>
           </div>
         </div>
       </div>
@@ -105,6 +105,47 @@
     </div>
   </div>
 </main>
+
+<!-- Contact Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-card">
+    <button class="modal-close" id="modalClose">
+      <i data-lucide="x" style="width:16px;height:16px;"></i>
+    </button>
+    <div class="modal-icon">
+      <i data-lucide="mail" style="width:20px;height:20px;"></i>
+    </div>
+    <h3 class="modal-title">Let's build this for you</h3>
+    <p class="modal-sub">Leave your details and we'll reach out within 24 hours.</p>
+    <div class="modal-summary" id="modalSummary"></div>
+    <form class="modal-form" id="contactForm">
+      <div class="modal-field">
+        <label class="modal-label">Name</label>
+        <input class="modal-input" type="text" id="fieldName" placeholder="Your full name" required>
+      </div>
+      <div class="modal-field">
+        <label class="modal-label">Email</label>
+        <input class="modal-input" type="email" id="fieldEmail" placeholder="you@company.com" required>
+      </div>
+      <div class="modal-field">
+        <label class="modal-label">Phone</label>
+        <input class="modal-input" type="tel" id="fieldPhone" placeholder="+961 70 000 000">
+      </div>
+      <button class="btn-primary modal-submit" type="submit" id="submitBtn" style="width:100%;justify-content:center;">
+        <i data-lucide="send" style="width:15px;height:15px;"></i>
+        Send request
+      </button>
+      <p class="modal-error" id="modalError" style="display:none;"></p>
+    </form>
+    <div class="modal-success" id="modalSuccess" style="display:none;">
+      <div class="modal-success__icon">
+        <i data-lucide="check" style="width:22px;height:22px;color:#22c55e;"></i>
+      </div>
+      <p class="modal-success__title">Request sent!</p>
+      <p class="modal-success__sub">We'll be in touch within 24 hours.</p>
+    </div>
+  </div>
+</div>
 
 <!-- Mermaid -->
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
