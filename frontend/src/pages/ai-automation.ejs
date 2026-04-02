@@ -75,10 +75,10 @@
 
           <div class="output-section">
             <div class="output-label">
-              <i data-lucide="zap" style="width:13px;height:13px;"></i>
-              Complexity
+              <i data-lucide="layers" style="width:13px;height:13px;"></i>
+              Tech Stack
             </div>
-            <p class="output-complexity" id="outputComplexity"></p>
+            <div class="output-stack" id="outputStack"></div>
           </div>
 
           <div class="output-section">
@@ -86,8 +86,32 @@
               <i data-lucide="git-branch" style="width:13px;height:13px;"></i>
               Automation Flow
             </div>
-            <div class="output-diagram" id="outputDiagram"></div>
+            <div class="output-diagram-wrap">
+              <div class="diagram-topbar">
+                <span class="diagram-topbar__label">
+                  <span class="diagram-topbar__dot"></span>
+                  FLOW GRAPH
+                </span>
+                <span class="diagram-topbar__meta" id="diagramMeta"></span>
+              </div>
+              <div class="output-diagram" id="outputDiagram"></div>
+            </div>
             <p class="diagram-error" id="diagramError" style="display:none;">Could not render diagram. Try rephrasing your process.</p>
+          </div>
+
+          <div class="output-section output-section--row">
+            <div class="output-stat">
+              <span class="output-stat__label">Est. Build Time</span>
+              <span class="output-stat__value" id="outputTimeline">—</span>
+            </div>
+            <div class="output-stat">
+              <span class="output-stat__label">Complexity</span>
+              <span class="output-stat__value" id="outputComplexityBadge">—</span>
+            </div>
+            <div class="output-stat">
+              <span class="output-stat__label">Integrations</span>
+              <span class="output-stat__value" id="outputIntegrations">—</span>
+            </div>
           </div>
 
           <!-- CTA -->

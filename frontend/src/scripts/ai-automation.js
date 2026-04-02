@@ -5,10 +5,14 @@ document.addEventListener('DOMContentLoaded', function () {
   var resetBtn   = document.getElementById('resetBtn');
   var outputEmpty  = document.getElementById('outputEmpty');
   var outputResult = document.getElementById('outputResult');
-  var outputSummary    = document.getElementById('outputSummary');
-  var outputComplexity = document.getElementById('outputComplexity');
-  var outputDiagram    = document.getElementById('outputDiagram');
-  var diagramError     = document.getElementById('diagramError');
+  var outputSummary         = document.getElementById('outputSummary');
+  var outputStack           = document.getElementById('outputStack');
+  var outputDiagram         = document.getElementById('outputDiagram');
+  var diagramError          = document.getElementById('diagramError');
+  var diagramMeta           = document.getElementById('diagramMeta');
+  var outputTimeline        = document.getElementById('outputTimeline');
+  var outputComplexityBadge = document.getElementById('outputComplexityBadge');
+  var outputIntegrations    = document.getElementById('outputIntegrations');
   var ctaBtn           = document.getElementById('ctaBtn');
   var modalOverlay     = document.getElementById('modalOverlay');
   var modalClose       = document.getElementById('modalClose');
@@ -21,7 +25,25 @@ document.addEventListener('DOMContentLoaded', function () {
   // Conversation history sent to Claude
   var history = [];
 
-  mermaid.initialize({ startOnLoad: false, theme: 'neutral', securityLevel: 'loose' });
+  mermaid.initialize({
+    startOnLoad: false,
+    securityLevel: 'loose',
+    theme: 'base',
+    themeVariables: {
+      background: '#ffffff',
+      primaryColor: '#f8fafc',
+      primaryTextColor: '#0f172a',
+      primaryBorderColor: '#1e293b',
+      lineColor: '#3b82f6',
+      secondaryColor: '#f1f5f9',
+      tertiaryColor: '#e2e8f0',
+      edgeLabelBackground: '#ffffff',
+      fontFamily: "'JetBrains Mono', 'Courier New', monospace",
+      fontSize: '11px',
+      clusterBkg: '#f8fafc',
+      clusterBorder: '#1e293b',
+    }
+  });
 
   // Send button active state
   input.addEventListener('input', function () {
@@ -60,22 +82,43 @@ document.addEventListener('DOMContentLoaded', function () {
     if (reply.indexOf('---SUMMARY---') === -1) return false;
 
     var summaryMatch    = reply.match(/---SUMMARY---([\s\S]*?)---COMPLEXITY---/);
-    var complexityMatch = reply.match(/---COMPLEXITY---([\s\S]*?)---DIAGRAM---/);
+    var complexityMatch = reply.match(/---COMPLEXITY---([\s\S]*?)---STACK---/);
+    var stackMatch      = reply.match(/---STACK---([\s\S]*?)---TIMELINE---/);
+    var timelineMatch   = reply.match(/---TIMELINE---([\s\S]*?)---DIAGRAM---/);
     var diagramMatch    = reply.match(/```mermaid([\s\S]*?)```/);
 
-    if (!summaryMatch || !complexityMatch || !diagramMatch) return false;
+    if (!summaryMatch || !diagramMatch) return false;
 
     var summary    = summaryMatch[1].trim();
-    var complexity = complexityMatch[1].trim();
+    var complexity = complexityMatch ? complexityMatch[1].trim() : '';
+    var stack      = stackMatch      ? stackMatch[1].trim()      : '';
+    var timeline   = timelineMatch   ? timelineMatch[1].trim()   : '';
     var diagram    = diagramMatch[1].trim();
 
-    // Render summary
+    // Summary
     outputSummary.textContent = summary;
 
-    // Render complexity with color
-    var level = complexity.split('—')[0].trim().toLowerCase();
-    var colorClass = level === 'simple' ? 'complexity-simple' : level === 'medium' ? 'complexity-medium' : 'complexity-complex';
-    outputComplexity.innerHTML = '<span class="' + colorClass + '">' + complexity.split('—')[0].trim() + '</span>' + (complexity.indexOf('—') > -1 ? ' — ' + complexity.split('—').slice(1).join('—').trim() : '');
+    // Tech stack badges
+    if (stack) {
+      outputStack.innerHTML = stack.split(',').map(function (s) {
+        return '<span class="stack-badge">' + s.trim() + '</span>';
+      }).join('');
+    }
+
+    // Stats row
+    if (timeline) outputTimeline.textContent = timeline;
+    if (complexity) {
+      var level = complexity.split('—')[0].trim();
+      outputComplexityBadge.textContent = level;
+    }
+    if (stack) {
+      var count = stack.split(',').length;
+      outputIntegrations.textContent = count + ' API' + (count !== 1 ? 's' : '');
+    }
+
+    // Diagram topbar meta
+    var nodeCount = (diagram.match(/\[|\{|\(\[/g) || []).length;
+    diagramMeta.textContent = nodeCount + ' nodes · generated ' + new Date().toLocaleTimeString();
 
     // Render Mermaid diagram
     diagramError.style.display = 'none';
@@ -86,7 +129,7 @@ document.addEventListener('DOMContentLoaded', function () {
         outputDiagram.innerHTML = result.svg;
       }).catch(function () {
         diagramError.style.display = 'block';
-        outputDiagram.innerHTML = '<pre style="font-size:12px;color:var(--text-muted);white-space:pre-wrap;">' + diagram + '</pre>';
+        outputDiagram.innerHTML = '<pre style="font-size:11px;color:var(--text-muted);white-space:pre-wrap;font-family:monospace;">' + diagram + '</pre>';
       });
     } catch (e) {
       diagramError.style.display = 'block';
