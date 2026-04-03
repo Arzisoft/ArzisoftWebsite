@@ -430,8 +430,24 @@
   font-size: 14px; color: var(--text-muted);
 }
 
+/* Contact strip */
+.contact-strip {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px;
+  margin-top: 32px;
+  padding: 20px 24px;
+  background: var(--bg-muted);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.contact-strip__text {
+  font-size: 15px; font-weight: 500; color: var(--text-secondary); margin: 0;
+}
+.contact-strip__btn { white-space: nowrap; flex-shrink: 0; }
+
 /* Responsive */
 @media (max-width: 900px) {
   .auto-layout { grid-template-columns: 1fr; }
   .auto-output { min-height: auto; }
+  .contact-strip { flex-direction: column; align-items: flex-start; }
 }

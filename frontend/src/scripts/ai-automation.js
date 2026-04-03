@@ -244,9 +244,19 @@ document.addEventListener('DOMContentLoaded', function () {
     modalOverlay.classList.remove('open');
   }
   modalClose.addEventListener('click', closeModal);
-  modalOverlay.addEventListener('click', function (e) {
-    if (e.target === modalOverlay) closeModal();
+  var overlayMousedownOnBackdrop = false;
+  modalOverlay.addEventListener('mousedown', function (e) {
+    overlayMousedownOnBackdrop = e.target === modalOverlay;
   });
+  modalOverlay.addEventListener('click', function (e) {
+    if (e.target === modalOverlay && overlayMousedownOnBackdrop) closeModal();
+  });
+
+  // Contact strip button
+  var contactStripBtn = document.getElementById('contactStripBtn');
+  if (contactStripBtn) {
+    contactStripBtn.addEventListener('click', openModal);
+  }
 
   // Form submit
   contactForm.addEventListener('submit', function (e) {
