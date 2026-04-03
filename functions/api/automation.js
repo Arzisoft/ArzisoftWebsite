@@ -71,7 +71,8 @@ export async function onRequestPost(context) {
     var writer = writable.getWriter();
     var encoder = new TextEncoder();
 
-    context.waitUntil((async function () {
+    // Fire-and-forget — do NOT wrap in context.waitUntil or it deadlocks before the readable is returned
+    (async function () {
       var reader = aiRes.body.getReader();
       var decoder = new TextDecoder();
       var buf = '';
@@ -89,7 +90,8 @@ export async function onRequestPost(context) {
             var raw = line.slice(6).trim();
             if (raw === '[DONE]') continue;
             try {
-              var token = JSON.parse(raw).choices[0].delta.content || '';
+              var parsed = JSON.parse(raw);
+              var token = parsed.choices && parsed.choices[0] && parsed.choices[0].delta && parsed.choices[0].delta.content || '';
               if (token) {
                 fullReply += token;
                 await writer.write(encoder.encode(token));
@@ -97,11 +99,13 @@ export async function onRequestPost(context) {
             } catch (e) {}
           }
         }
+      } catch (streamErr) {
+        try { await writer.write(encoder.encode('Sorry, an error occurred. Please try again.')); } catch (e) {}
       } finally {
-        await writer.close();
+        try { await writer.close(); } catch (e) {}
       }
-      await writeKV(context, env, request, body, sessionId, messages, fullReply);
-    })());
+      context.waitUntil(writeKV(context, env, request, body, sessionId, messages, fullReply));
+    })();
 
     return new Response(readable, {
       headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-cache' },
