@@ -266,9 +266,6 @@
 }
 .output-diagram svg { max-width: 100%; height: auto; }
 
-@keyframes flowDash {
-  to { stroke-dashoffset: -10; }
-}
 
 .diagram-error {
   font-size: 13px; color: #ef4444; margin-top: 8px;

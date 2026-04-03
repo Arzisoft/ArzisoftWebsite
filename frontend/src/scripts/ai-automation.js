@@ -137,10 +137,18 @@ document.addEventListener('DOMContentLoaded', function () {
     try {
       mermaid.render(id, diagram).then(function (result) {
         outputDiagram.innerHTML = result.svg;
-        outputDiagram.querySelectorAll('.flowchart-link, path.edge-path').forEach(function (path) {
-          path.style.strokeDasharray = '6 4';
-          path.style.animation = 'flowDash 0.5s linear infinite';
-        });
+        var svg = outputDiagram.querySelector('svg');
+        if (svg) {
+          var styleTag = document.createElementNS('http://www.w3.org/2000/svg', 'style');
+          styleTag.textContent = [
+            '@keyframes flowDash { to { stroke-dashoffset: -10; } }',
+            'path.flowchart-link, .edgePath path, path[class*="flowchart"] {',
+            '  stroke-dasharray: 6 4 !important;',
+            '  animation: flowDash 0.5s linear infinite !important;',
+            '}'
+          ].join(' ');
+          svg.insertBefore(styleTag, svg.firstChild);
+        }
       }).catch(function () {
         diagramError.style.display = 'block';
         outputDiagram.innerHTML = '<pre style="font-size:11px;color:var(--text-muted);white-space:pre-wrap;font-family:monospace;">' + diagram + '</pre>';
