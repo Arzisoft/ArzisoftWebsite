@@ -30,41 +30,38 @@ export async function onRequestPost(context) {
 
     var groqMessages = [{ role: 'system', content: buildPrompt() }].concat(messages);
 
-    var aiRes;
+    // Try Groq first, fall back to NVIDIA if it fails
+    var aiRes, responseText, data;
+
+    var groqOk = false;
     try {
       aiRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + apiKey,
-        },
-        body: JSON.stringify({
-          model: model,
-          messages: groqMessages,
-          max_tokens: maxTokens,
-          temperature: 0.3,
-        }),
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
+        body: JSON.stringify({ model: model, messages: groqMessages, max_tokens: maxTokens, temperature: 0.3 }),
       });
-    } catch (e) {
-      return respond({ error: 'fetch failed: ' + String(e) }, 502);
-    }
-
-    var responseText;
-    try {
       responseText = await aiRes.text();
-    } catch (e) {
-      return respond({ error: 'could not read response: ' + String(e) }, 502);
-    }
+      if (aiRes.ok) {
+        data = JSON.parse(responseText);
+        groqOk = true;
+      }
+    } catch (e) { /* fall through to NVIDIA */ }
 
-    if (!aiRes.ok) {
-      return respond({ error: 'AI ' + aiRes.status + ': ' + responseText }, 502);
-    }
-
-    var data;
-    try {
-      data = JSON.parse(responseText);
-    } catch (e) {
-      return respond({ error: 'non-JSON response: ' + responseText.slice(0, 200) }, 502);
+    if (!groqOk) {
+      var nvidiaKey = env.NVIDIA_API_KEY_13B;
+      if (!nvidiaKey) return respond({ error: 'AI service unavailable' }, 503);
+      try {
+        aiRes = await fetch('https://integrate.api.nvidia.com/v1/chat/completions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + nvidiaKey },
+          body: JSON.stringify({ model: 'meta/llama-3.3-70b-instruct', messages: groqMessages, max_tokens: maxTokens, temperature: 0.3 }),
+        });
+        responseText = await aiRes.text();
+        if (!aiRes.ok) return respond({ error: 'AI fallback ' + aiRes.status + ': ' + responseText }, 502);
+        data = JSON.parse(responseText);
+      } catch (e) {
+        return respond({ error: 'All AI providers failed: ' + String(e) }, 502);
+      }
     }
 
     var reply = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content
