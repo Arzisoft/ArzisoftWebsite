@@ -22,11 +22,10 @@ export async function onRequestPost(context) {
       return respond({ error: 'AI service not configured' }, 503);
     }
 
-    // Use cheap 8b model for questions (turns 1-3), 70b only for final diagram generation
+    // 8b for first 2 questions only — 70b from turn 3+ since the model may generate the diagram early
     var userTurns = messages.filter(function (m) { return m.role === 'user'; }).length;
-    var isFinalTurn = userTurns >= 4;
-    var model = isFinalTurn ? 'llama-3.3-70b-versatile' : 'llama3-8b-8192';
-    var maxTokens = isFinalTurn ? 1000 : 120;
+    var model = userTurns <= 2 ? 'llama3-8b-8192' : 'llama-3.3-70b-versatile';
+    var maxTokens = userTurns <= 2 ? 120 : 1000;
 
     var groqMessages = [{ role: 'system', content: buildPrompt() }].concat(messages);
 
