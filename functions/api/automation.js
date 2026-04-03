@@ -29,108 +29,83 @@ export async function onRequestPost(context) {
 
     var groqMessages = [{ role: 'system', content: buildPrompt() }].concat(messages);
 
-    // Try Groq first, fall back to NVIDIA if it fails
-    var aiRes, responseText, data;
-
+    // Try Groq with streaming first
+    var aiRes;
     var groqOk = false;
     try {
       aiRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
-        body: JSON.stringify({ model: model, messages: groqMessages, max_tokens: maxTokens, temperature: 0.3 }),
+        body: JSON.stringify({ model: model, messages: groqMessages, max_tokens: maxTokens, temperature: 0.3, stream: true }),
       });
-      responseText = await aiRes.text();
-      if (aiRes.ok) {
-        data = JSON.parse(responseText);
-        groqOk = true;
-      }
+      if (aiRes.ok) groqOk = true;
     } catch (e) { /* fall through to NVIDIA */ }
 
+    // If Groq failed, fall back to NVIDIA (non-streaming)
     if (!groqOk) {
       var nvidiaKey = env.NVIDIA_API_KEY_13B;
       if (!nvidiaKey) return respond({ error: 'AI service unavailable' }, 503);
       try {
-        aiRes = await fetch('https://integrate.api.nvidia.com/v1/chat/completions', {
+        var nvidiaRes = await fetch('https://integrate.api.nvidia.com/v1/chat/completions', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + nvidiaKey },
           body: JSON.stringify({ model: 'meta/llama-3.3-70b-instruct', messages: groqMessages, max_tokens: maxTokens, temperature: 0.3 }),
         });
-        responseText = await aiRes.text();
-        if (!aiRes.ok) return respond({ error: 'AI fallback ' + aiRes.status + ': ' + responseText }, 502);
-        data = JSON.parse(responseText);
+        var nvidiaText = await nvidiaRes.text();
+        if (!nvidiaRes.ok) return respond({ error: 'AI fallback ' + nvidiaRes.status }, 502);
+        var nvidiaData = JSON.parse(nvidiaText);
+        var fallbackReply = nvidiaData.choices[0].message.content.trim();
+        await writeKV(context, env, request, body, sessionId, messages, fallbackReply);
+        return streamText(fallbackReply);
       } catch (e) {
         return respond({ error: 'All AI providers failed: ' + String(e) }, 502);
       }
     }
 
-    var reply = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content
-      ? data.choices[0].message.content.trim()
-      : 'Sorry, could not generate a response.';
-
-    var isDiagram = reply.indexOf('---SUMMARY---') !== -1;
+    // Stream Groq SSE response to client, accumulate for KV
     var kv = env.AUTOMATION_KV;
+    var cf = request.cf || {};
+    var ua = request.headers.get('user-agent') || '';
 
-    if (kv && sessionId) {
-      var cf = request.cf || {};
-      var ua = request.headers.get('user-agent') || '';
-      var parsed = parseUA(ua);
-      var questionsAnswered = messages.filter(function (m) { return m.role === 'user'; }).length;
-      var category = extractCategory(messages);
+    var { readable, writable } = new TransformStream();
+    var writer = writable.getWriter();
+    var encoder = new TextEncoder();
 
-      var entry = {
-        sessionId: sessionId,
-        message: messages[0] && messages[0].content ? messages[0].content : '',
-        messages: messages,
-        reply: isDiagram ? reply : null,
-        category: category,
-        questionsAnswered: questionsAnswered,
-        completed: isDiagram,
-        contacted: false,
-        createdAt: body.createdAt || new Date().toISOString(),
-        lastActiveAt: new Date().toISOString(),
-        // Location
-        country: cf.country || null,
-        city: cf.city || null,
-        region: cf.region || null,
-        timezone: cf.timezone || null,
-        // Network
-        org: cf.asOrganization || null,
-        // Device
-        deviceType: cf.deviceType || null,
-        browser: parsed.browser,
-        os: parsed.os,
-        // Source
-        referrer: request.headers.get('referer') || null,
-        // Page tracking — filled later by /api/track
-        timeSpent: null,
-        popupShown: false,
-        popupDismissed: false,
-        scrolledToDiagram: false,
-        scrollDepth: null,
-      };
+    context.waitUntil((async function () {
+      var reader = aiRes.body.getReader();
+      var decoder = new TextDecoder();
+      var buf = '';
+      var fullReply = '';
+      try {
+        while (true) {
+          var chunk = await reader.read();
+          if (chunk.done) break;
+          buf += decoder.decode(chunk.value, { stream: true });
+          var lines = buf.split('\n');
+          buf = lines.pop();
+          for (var i = 0; i < lines.length; i++) {
+            var line = lines[i];
+            if (!line.startsWith('data: ')) continue;
+            var raw = line.slice(6).trim();
+            if (raw === '[DONE]') continue;
+            try {
+              var token = JSON.parse(raw).choices[0].delta.content || '';
+              if (token) {
+                fullReply += token;
+                await writer.write(encoder.encode(token));
+              }
+            } catch (e) {}
+          }
+        }
+      } finally {
+        await writer.close();
+      }
+      await writeKV(context, env, request, body, sessionId, messages, fullReply);
+    })());
 
-      var writePromise = kv.put(
-        'session:' + sessionId,
-        JSON.stringify(entry),
-        { expirationTtl: 60 * 60 * 24 * 180 }
-      );
-      context.waitUntil(writePromise);
-
-    } else if (kv && isDiagram && !sessionId) {
-      // Fallback for requests without sessionId — log completed flow only
-      var category2 = extractCategory(messages);
-      var legacyKey = 'log:' + Date.now() + ':' + Math.random().toString(36).slice(2, 6);
-      context.waitUntil(kv.put(legacyKey, JSON.stringify({
-        message: messages[0] && messages[0].content ? messages[0].content : '',
-        messages: messages,
-        reply: reply,
-        category: category2,
-        contacted: false,
-        createdAt: new Date().toISOString(),
-      }), { expirationTtl: 60 * 60 * 24 * 180 }));
-    }
-
-    return respond({ reply: reply });
+    return new Response(readable, {
+      headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-cache' },
+    });
 
   } catch (e) {
     return respond({ error: 'Crash: ' + String(e) }, 500);
@@ -197,6 +172,49 @@ function extractCategory(messages) {
   var dst = 'general';
   for (var j = 0; j < dests.length; j++) { if (text.indexOf(dests[j][0]) !== -1) { dst = dests[j][1]; break; } }
   return src + '--' + dst;
+}
+
+function streamText(text) {
+  return new Response(text, {
+    headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-cache' },
+  });
+}
+
+async function writeKV(context, env, request, body, sessionId, messages, reply) {
+  var isDiagram = reply.indexOf('---SUMMARY---') !== -1;
+  var kv = env.AUTOMATION_KV;
+  if (!kv) return;
+
+  if (sessionId) {
+    var cf = request.cf || {};
+    var ua = request.headers.get('user-agent') || '';
+    var parsed = parseUA(ua);
+    var entry = {
+      sessionId: sessionId,
+      message: messages[0] && messages[0].content ? messages[0].content : '',
+      messages: messages,
+      reply: isDiagram ? reply : null,
+      category: extractCategory(messages),
+      questionsAnswered: messages.filter(function (m) { return m.role === 'user'; }).length,
+      completed: isDiagram,
+      contacted: false,
+      createdAt: body.createdAt || new Date().toISOString(),
+      lastActiveAt: new Date().toISOString(),
+      country: cf.country || null, city: cf.city || null, region: cf.region || null, timezone: cf.timezone || null,
+      org: cf.asOrganization || null,
+      deviceType: cf.deviceType || null, browser: parsed.browser, os: parsed.os,
+      referrer: request.headers.get('referer') || null,
+      timeSpent: null, popupShown: false, popupDismissed: false, scrolledToDiagram: false, scrollDepth: null,
+    };
+    context.waitUntil(kv.put('session:' + sessionId, JSON.stringify(entry), { expirationTtl: 60 * 60 * 24 * 180 }));
+  } else if (isDiagram) {
+    var legacyKey = 'log:' + Date.now() + ':' + Math.random().toString(36).slice(2, 6);
+    context.waitUntil(kv.put(legacyKey, JSON.stringify({
+      message: messages[0] && messages[0].content ? messages[0].content : '',
+      messages: messages, reply: reply, category: extractCategory(messages),
+      contacted: false, createdAt: new Date().toISOString(),
+    }), { expirationTtl: 60 * 60 * 24 * 180 }));
+  }
 }
 
 function respond(body, status) {

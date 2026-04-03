@@ -170,6 +170,9 @@ document.addEventListener('DOMContentLoaded', function () {
     var typing = appendMessage('ai', 'Thinking...', false);
     typing.setAttribute('data-typing', '1');
 
+    var bubble = typing.querySelector('.message__bubble');
+    bubble.textContent = '';
+
     fetch('/api/automation', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -179,15 +182,31 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!res.ok) {
           return res.text().then(function (t) { throw new Error(res.status + ': ' + t.slice(0, 120)); });
         }
-        return res.json();
+        var reader = res.body.getReader();
+        var decoder = new TextDecoder();
+        var fullText = '';
+
+        function readChunk() {
+          return reader.read().then(function (result) {
+            if (result.done) return fullText;
+            var chunk = decoder.decode(result.value, { stream: true });
+            fullText += chunk;
+            // Stream question text live; show a fixed label while diagram is generating
+            if (fullText.indexOf('---SUMMARY---') === -1) {
+              bubble.textContent = fullText;
+            } else {
+              bubble.textContent = 'Generating your automation flow...';
+            }
+            messages.scrollTop = messages.scrollHeight;
+            return readChunk();
+          });
+        }
+
+        return readChunk();
       })
-      .then(function (data) {
-        var reply = data.reply || data.error || 'Sorry, I could not generate a response.';
+      .then(function (reply) {
         history.push({ role: 'assistant', content: reply });
-
-        var bubble = typing.querySelector('.message__bubble');
         var isDiagram = parseAndRender(reply);
-
         if (isDiagram) {
           bubble.innerHTML = 'Your automation flow is ready. Check the panel on the right.<br><br><span class="example-hint">Scroll down to see the diagram and contact us to build it.</span>';
         } else {
@@ -197,7 +216,6 @@ document.addEventListener('DOMContentLoaded', function () {
         messages.scrollTop = messages.scrollHeight;
       })
       .catch(function (err) {
-        var bubble = typing.querySelector('.message__bubble');
         bubble.textContent = 'Error: ' + (err && err.message ? err.message : 'Connection failed. Please try again.');
         typing.removeAttribute('data-typing');
       });
