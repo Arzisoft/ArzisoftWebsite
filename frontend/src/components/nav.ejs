@@ -13,7 +13,25 @@
       <a href="/services" class="navbar__link <%= currentPage === 'services' ? 'navbar__link--active' : '' %>">Services</a>
       <a href="/ai" class="navbar__link <%= currentPage === 'ai' ? 'navbar__link--active' : '' %>">AI Chat</a>
       <a href="/devgrup" class="navbar__link navbar__link--dim <%= currentPage === 'devgrup' ? 'navbar__link--active' : '' %>">DEVGRUP</a>
-      <a href="/ai" class="btn-primary navbar__cta">Get Started</a>
+      <div class="navbar__cta-wrap" id="ctaWrap">
+        <button class="btn-primary navbar__cta" id="getStartedBtn">Get Started</button>
+        <div class="gs-dropdown" id="gsDropdown">
+          <button class="gs-option" id="gsContactBtn">
+            <span class="gs-option__icon"><i data-lucide="mail" style="width:15px;height:15px;"></i></span>
+            <span>
+              <span class="gs-option__title">Contact us</span>
+              <span class="gs-option__sub">Send us a message</span>
+            </span>
+          </button>
+          <a href="/ai" class="gs-option">
+            <span class="gs-option__icon"><i data-lucide="workflow" style="width:15px;height:15px;"></i></span>
+            <span>
+              <span class="gs-option__title">Design your automation</span>
+              <span class="gs-option__sub">Try our free AI tool</span>
+            </span>
+          </a>
+        </div>
+      </div>
     </div>
 
     <!-- Mobile toggle -->
@@ -29,7 +47,8 @@
     <a href="/services" class="navbar__mobile-link <%= currentPage === 'services' ? 'navbar__mobile-link--active' : '' %>">Services</a>
     <a href="/ai" class="navbar__mobile-link <%= currentPage === 'ai' ? 'navbar__mobile-link--active' : '' %>">AI Chat</a>
     <a href="/devgrup" class="navbar__mobile-link <%= currentPage === 'devgrup' ? 'navbar__mobile-link--active' : '' %>">DEVGRUP</a>
-    <a href="/ai" class="navbar__mobile-link" style="margin-top:8px;background:var(--text-primary);color:#fff;font-weight:500;">Get Started</a>
+    <button class="navbar__mobile-link" id="mobileContactBtn" style="margin-top:8px;background:var(--text-primary);color:#fff;font-weight:500;text-align:left;border:none;cursor:pointer;width:100%;">Contact us</button>
+    <a href="/ai" class="navbar__mobile-link" style="background:rgba(0,0,0,0.04);font-weight:500;">Design your automation</a>
   </div>
 </nav>
 
@@ -96,4 +115,152 @@
   .navbar__links { display: none; }
   .navbar__toggle { display: block; }
 }
+
+/* Get Started dropdown */
+.navbar__cta-wrap { position: relative; margin-left: 16px; }
+.gs-dropdown {
+  display: none;
+  position: absolute; top: calc(100% + 10px); right: 0;
+  background: #fff; border: 1px solid var(--border);
+  border-radius: 14px; padding: 6px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+  min-width: 220px; z-index: 200;
+}
+.gs-dropdown.open { display: flex; flex-direction: column; gap: 2px; }
+.gs-option {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 12px; border-radius: 10px;
+  border: none; background: none; cursor: pointer; text-align: left;
+  transition: background 0.15s; text-decoration: none; width: 100%;
+}
+.gs-option:hover { background: var(--bg-muted); }
+.gs-option__icon {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: var(--bg-muted); display: flex; align-items: center;
+  justify-content: center; color: var(--text-secondary); flex-shrink: 0;
+}
+.gs-option__title {
+  display: block; font-size: 13px; font-weight: 600;
+  color: var(--text-primary); line-height: 1.3;
+}
+.gs-option__sub {
+  display: block; font-size: 12px; color: var(--text-muted);
+}
 </style>
+
+<!-- Enquiry modal (nav-level, available on all pages) -->
+<div id="navEnquiryOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);backdrop-filter:blur(4px);z-index:500;align-items:center;justify-content:center;padding:24px;">
+  <div style="background:#fff;border-radius:16px;padding:32px;width:100%;max-width:440px;position:relative;box-shadow:0 24px 64px rgba(0,0,0,0.12);">
+    <button id="navEnquiryClose" style="position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:8px;background:var(--bg-muted);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-muted);">
+      <i data-lucide="x" style="width:16px;height:16px;"></i>
+    </button>
+    <div style="width:44px;height:44px;border-radius:12px;background:var(--text-primary);display:flex;align-items:center;justify-content:center;color:#fff;margin-bottom:16px;">
+      <i data-lucide="mail" style="width:20px;height:20px;"></i>
+    </div>
+    <h3 style="font-size:20px;font-weight:700;color:var(--text-primary);letter-spacing:-0.01em;margin-bottom:6px;">Get in touch</h3>
+    <p style="font-size:14px;color:var(--text-muted);margin-bottom:24px;">Tell us about your project and we'll get back to you within 24 hours.</p>
+    <form id="navEnquiryForm" style="display:flex;flex-direction:column;gap:14px;">
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <label style="font-size:12px;font-weight:600;color:var(--text-secondary);letter-spacing:0.02em;">Name</label>
+        <input id="navEnqName" type="text" placeholder="Your full name" required style="padding:11px 14px;border-radius:10px;border:1px solid var(--border);background:var(--bg-muted);font-family:'Inter',sans-serif;font-size:14px;color:var(--text-primary);outline:none;">
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <label style="font-size:12px;font-weight:600;color:var(--text-secondary);letter-spacing:0.02em;">Email</label>
+        <input id="navEnqEmail" type="email" placeholder="you@company.com" required style="padding:11px 14px;border-radius:10px;border:1px solid var(--border);background:var(--bg-muted);font-family:'Inter',sans-serif;font-size:14px;color:var(--text-primary);outline:none;">
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <label style="font-size:12px;font-weight:600;color:var(--text-secondary);letter-spacing:0.02em;">Message</label>
+        <textarea id="navEnqMessage" placeholder="Tell us about your project..." required rows="4" style="padding:11px 14px;border-radius:10px;border:1px solid var(--border);background:var(--bg-muted);font-family:'Inter',sans-serif;font-size:14px;color:var(--text-primary);outline:none;resize:vertical;"></textarea>
+      </div>
+      <button type="submit" id="navEnqSubmit" class="btn-primary" style="justify-content:center;margin-top:4px;">
+        <i data-lucide="send" style="width:15px;height:15px;"></i>
+        Send message
+      </button>
+      <p id="navEnqError" style="display:none;font-size:13px;color:#ef4444;text-align:center;"></p>
+    </form>
+    <div id="navEnqSuccess" style="display:none;flex-direction:column;align-items:center;text-align:center;padding:20px 0 8px;">
+      <div style="width:56px;height:56px;border-radius:50%;background:rgba(34,197,94,0.1);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+        <i data-lucide="check" style="width:22px;height:22px;color:#22c55e;"></i>
+      </div>
+      <p style="font-size:18px;font-weight:700;color:var(--text-primary);margin-bottom:8px;">Message sent!</p>
+      <p style="font-size:14px;color:var(--text-muted);">We'll be in touch within 24 hours.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var getStartedBtn  = document.getElementById('getStartedBtn');
+  var dropdown       = document.getElementById('gsDropdown');
+  var gsContactBtn   = document.getElementById('gsContactBtn');
+  var mobileContact  = document.getElementById('mobileContactBtn');
+  var overlay        = document.getElementById('navEnquiryOverlay');
+  var closeBtn       = document.getElementById('navEnquiryClose');
+  var form           = document.getElementById('navEnquiryForm');
+  var submitBtn      = document.getElementById('navEnqSubmit');
+  var errorEl        = document.getElementById('navEnqError');
+  var successEl      = document.getElementById('navEnqSuccess');
+
+  // Dropdown toggle
+  getStartedBtn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    dropdown.classList.toggle('open');
+  });
+  document.addEventListener('click', function () {
+    dropdown.classList.remove('open');
+  });
+
+  // Open enquiry modal
+  function openModal() {
+    dropdown.classList.remove('open');
+    overlay.style.display = 'flex';
+    lucide.createIcons();
+  }
+  function closeModal() { overlay.style.display = 'none'; }
+
+  gsContactBtn.addEventListener('click', openModal);
+  if (mobileContact) mobileContact.addEventListener('click', openModal);
+  closeBtn.addEventListener('click', closeModal);
+
+  var mousedownOnBackdrop = false;
+  overlay.addEventListener('mousedown', function (e) { mousedownOnBackdrop = e.target === overlay; });
+  overlay.addEventListener('click', function (e) { if (e.target === overlay && mousedownOnBackdrop) closeModal(); });
+
+  // Submit
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var name    = document.getElementById('navEnqName').value.trim();
+    var email   = document.getElementById('navEnqEmail').value.trim();
+    var message = document.getElementById('navEnqMessage').value.trim();
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Sending...';
+    errorEl.style.display = 'none';
+
+    fetch('/api/enquiry', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: name, email: email, message: message }),
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data.success) {
+          form.style.display = 'none';
+          successEl.style.display = 'flex';
+          lucide.createIcons();
+        } else {
+          errorEl.textContent = data.error || 'Something went wrong.';
+          errorEl.style.display = 'block';
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Send message';
+        }
+      })
+      .catch(function () {
+        errorEl.textContent = 'Connection error. Please try again.';
+        errorEl.style.display = 'block';
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Send message';
+      });
+  });
+})();
+</script>
