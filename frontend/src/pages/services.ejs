@@ -49,12 +49,54 @@
           Ready to bring your next project to life? Let's discuss how
           Arzisoft can turn your vision into a working product.
         </p>
-        <a href="/ai" class="btn-primary">
+        <button class="btn-primary" id="openEnquiryBtn">
           Start a Conversation <i data-lucide="arrow-right" style="width:16px;height:16px;"></i>
-        </a>
+        </button>
       </div>
     </div>
   </div>
 </main>
 
-<%- include('../components/footer') %>
+<!-- Enquiry Modal -->
+<div class="modal-overlay" id="enquiryOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);backdrop-filter:blur(4px);z-index:1000;display:none;align-items:center;justify-content:center;padding:24px;">
+  <div style="background:#fff;border-radius:16px;padding:32px;width:100%;max-width:440px;position:relative;box-shadow:0 24px 64px rgba(0,0,0,0.12);">
+    <button id="closeEnquiryBtn" style="position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:8px;background:var(--bg-muted);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-muted);">
+      <i data-lucide="x" style="width:16px;height:16px;"></i>
+    </button>
+    <div style="width:44px;height:44px;border-radius:12px;background:var(--text-primary);display:flex;align-items:center;justify-content:center;color:#fff;margin-bottom:16px;">
+      <i data-lucide="mail" style="width:20px;height:20px;"></i>
+    </div>
+    <h3 style="font-size:20px;font-weight:700;color:var(--text-primary);letter-spacing:-0.01em;margin-bottom:6px;">Get in touch</h3>
+    <p style="font-size:14px;color:var(--text-muted);margin-bottom:24px;">Tell us about your project and we'll get back to you within 24 hours.</p>
+
+    <form id="enquiryForm" style="display:flex;flex-direction:column;gap:14px;">
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <label style="font-size:12px;font-weight:600;color:var(--text-secondary);letter-spacing:0.02em;">Name</label>
+        <input id="enqName" type="text" placeholder="Your full name" required style="padding:11px 14px;border-radius:10px;border:1px solid var(--border);background:var(--bg-muted);font-family:'Inter',sans-serif;font-size:14px;color:var(--text-primary);outline:none;">
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <label style="font-size:12px;font-weight:600;color:var(--text-secondary);letter-spacing:0.02em;">Email</label>
+        <input id="enqEmail" type="email" placeholder="you@company.com" required style="padding:11px 14px;border-radius:10px;border:1px solid var(--border);background:var(--bg-muted);font-family:'Inter',sans-serif;font-size:14px;color:var(--text-primary);outline:none;">
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <label style="font-size:12px;font-weight:600;color:var(--text-secondary);letter-spacing:0.02em;">Message</label>
+        <textarea id="enqMessage" placeholder="Tell us about your project..." required rows="4" style="padding:11px 14px;border-radius:10px;border:1px solid var(--border);background:var(--bg-muted);font-family:'Inter',sans-serif;font-size:14px;color:var(--text-primary);outline:none;resize:vertical;"></textarea>
+      </div>
+      <button type="submit" id="enqSubmitBtn" class="btn-primary" style="justify-content:center;margin-top:4px;">
+        <i data-lucide="send" style="width:15px;height:15px;"></i>
+        Send message
+      </button>
+      <p id="enqError" style="display:none;font-size:13px;color:#ef4444;text-align:center;"></p>
+    </form>
+
+    <div id="enqSuccess" style="display:none;flex-direction:column;align-items:center;text-align:center;padding:20px 0 8px;">
+      <div style="width:56px;height:56px;border-radius:50%;background:rgba(34,197,94,0.1);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+        <i data-lucide="check" style="width:22px;height:22px;color:#22c55e;"></i>
+      </div>
+      <p style="font-size:18px;font-weight:700;color:var(--text-primary);margin-bottom:8px;">Message sent!</p>
+      <p style="font-size:14px;color:var(--text-muted);">We'll be in touch within 24 hours.</p>
+    </div>
+  </div>
+</div>
+
+<%- include('../components/footer', { pageScript: 'services.js' }) %>
