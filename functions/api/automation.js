@@ -17,25 +17,31 @@ export async function onRequestPost(context) {
 
     var sessionId = body.sessionId || null;
 
-    var apiKey = env.NVIDIA_API_KEY_13B;
+    var apiKey = env.GROQ_API_KEY;
     if (!apiKey) {
       return respond({ error: 'AI service not configured' }, 503);
     }
 
-    var nvidiaMessages = [{ role: 'system', content: buildPrompt() }].concat(messages);
+    // Use cheap 8b model for questions (turns 1-3), 70b only for final diagram generation
+    var userTurns = messages.filter(function (m) { return m.role === 'user'; }).length;
+    var isFinalTurn = userTurns >= 4;
+    var model = isFinalTurn ? 'llama-3.3-70b-versatile' : 'llama3-8b-8192';
+    var maxTokens = isFinalTurn ? 1000 : 120;
+
+    var groqMessages = [{ role: 'system', content: buildPrompt() }].concat(messages);
 
     var aiRes;
     try {
-      aiRes = await fetch('https://integrate.api.nvidia.com/v1/chat/completions', {
+      aiRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ' + apiKey,
         },
         body: JSON.stringify({
-          model: 'meta/llama-3.3-70b-instruct',
-          messages: nvidiaMessages,
-          max_tokens: 1500,
+          model: model,
+          messages: groqMessages,
+          max_tokens: maxTokens,
           temperature: 0.3,
         }),
       });
