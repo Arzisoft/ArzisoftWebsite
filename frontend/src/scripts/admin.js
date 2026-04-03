@@ -98,6 +98,7 @@ document.addEventListener('DOMContentLoaded', function () {
     modal.style.display = 'block';
 
     // Render mermaid diagram if present
+    var replyText = log.reply || '';
     var diagramCode = extractSection(replyText, 'DIAGRAM');
     if (diagramCode) {
       var match = diagramCode.match(/```mermaid\s*([\s\S]*?)```/);
