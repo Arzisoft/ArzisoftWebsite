@@ -137,6 +137,10 @@ document.addEventListener('DOMContentLoaded', function () {
     try {
       mermaid.render(id, diagram).then(function (result) {
         outputDiagram.innerHTML = result.svg;
+        outputDiagram.querySelectorAll('.flowchart-link, path.edge-path').forEach(function (path) {
+          path.style.strokeDasharray = '6 4';
+          path.style.animation = 'flowDash 0.5s linear infinite';
+        });
       }).catch(function () {
         diagramError.style.display = 'block';
         outputDiagram.innerHTML = '<pre style="font-size:11px;color:var(--text-muted);white-space:pre-wrap;font-family:monospace;">' + diagram + '</pre>';
