@@ -17,48 +17,51 @@ export async function onRequestPost(context) {
 
     var sessionId = body.sessionId || null;
 
-    var apiKey = env.NVIDIA_API_KEY_13B;
+    var apiKey = env.GROQ_API_KEY;
     if (!apiKey) {
       return respond({ error: 'AI service not configured' }, 503);
     }
 
-    var nvidiaMessages = [{ role: 'system', content: buildPrompt() }].concat(messages);
+    // Use cheap 8b model for questions (turns 1-3), 70b only for final diagram generation
+    var userTurns = messages.filter(function (m) { return m.role === 'user'; }).length;
+    var isFinalTurn = userTurns >= 4;
+    var model = isFinalTurn ? 'llama-3.3-70b-versatile' : 'llama3-8b-8192';
+    var maxTokens = isFinalTurn ? 1000 : 120;
 
-    var aiRes;
+    var groqMessages = [{ role: 'system', content: buildPrompt() }].concat(messages);
+
+    // Try Groq first, fall back to NVIDIA if it fails
+    var aiRes, responseText, data;
+
+    var groqOk = false;
     try {
-      aiRes = await fetch('https://integrate.api.nvidia.com/v1/chat/completions', {
+      aiRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + apiKey,
-        },
-        body: JSON.stringify({
-          model: 'meta/llama-3.3-70b-instruct',
-          messages: nvidiaMessages,
-          max_tokens: 1500,
-          temperature: 0.3,
-        }),
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
+        body: JSON.stringify({ model: model, messages: groqMessages, max_tokens: maxTokens, temperature: 0.3 }),
       });
-    } catch (e) {
-      return respond({ error: 'fetch failed: ' + String(e) }, 502);
-    }
-
-    var responseText;
-    try {
       responseText = await aiRes.text();
-    } catch (e) {
-      return respond({ error: 'could not read response: ' + String(e) }, 502);
-    }
+      if (aiRes.ok) {
+        data = JSON.parse(responseText);
+        groqOk = true;
+      }
+    } catch (e) { /* fall through to NVIDIA */ }
 
-    if (!aiRes.ok) {
-      return respond({ error: 'AI ' + aiRes.status + ': ' + responseText }, 502);
-    }
-
-    var data;
-    try {
-      data = JSON.parse(responseText);
-    } catch (e) {
-      return respond({ error: 'non-JSON response: ' + responseText.slice(0, 200) }, 502);
+    if (!groqOk) {
+      var nvidiaKey = env.NVIDIA_API_KEY_13B;
+      if (!nvidiaKey) return respond({ error: 'AI service unavailable' }, 503);
+      try {
+        aiRes = await fetch('https://integrate.api.nvidia.com/v1/chat/completions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + nvidiaKey },
+          body: JSON.stringify({ model: 'meta/llama-3.3-70b-instruct', messages: groqMessages, max_tokens: maxTokens, temperature: 0.3 }),
+        });
+        responseText = await aiRes.text();
+        if (!aiRes.ok) return respond({ error: 'AI fallback ' + aiRes.status + ': ' + responseText }, 502);
+        data = JSON.parse(responseText);
+      } catch (e) {
+        return respond({ error: 'All AI providers failed: ' + String(e) }, 502);
+      }
     }
 
     var reply = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content

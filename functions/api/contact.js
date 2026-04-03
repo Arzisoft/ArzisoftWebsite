@@ -63,7 +63,7 @@ export async function onRequestPost(context) {
       },
       body: JSON.stringify({
         from: 'Arzisoft <notifications@arzisoft.com>',
-        to: ['arzisoft@arzisoft.com'],
+        to: ['hello@arzisoft.com'],
         reply_to: email,
         subject: `Automation Request — ${name}`,
         html,

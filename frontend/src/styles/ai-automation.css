@@ -48,6 +48,14 @@
   justify-content: space-between;
 }
 .chat-identity { display: flex; align-items: center; gap: 12px; }
+.chat-topbar-right { display: flex; align-items: center; gap: 10px; }
+.groq-badge {
+  font-size: 11px; color: var(--text-muted); text-decoration: none;
+  padding: 4px 8px; border: 1px solid var(--border); border-radius: 99px;
+  transition: color 0.15s, border-color 0.15s;
+}
+.groq-badge:hover { color: var(--text-secondary); border-color: var(--text-muted); }
+.groq-badge strong { color: var(--text-secondary); font-weight: 600; }
 .chat-icon {
   width: 32px; height: 32px; border-radius: 8px;
   background: var(--text-primary);
@@ -430,8 +438,24 @@
   font-size: 14px; color: var(--text-muted);
 }
 
+/* Contact strip */
+.contact-strip {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px;
+  margin-top: 32px;
+  padding: 20px 24px;
+  background: var(--bg-muted);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.contact-strip__text {
+  font-size: 15px; font-weight: 500; color: var(--text-secondary); margin: 0;
+}
+.contact-strip__btn { white-space: nowrap; flex-shrink: 0; }
+
 /* Responsive */
 @media (max-width: 900px) {
   .auto-layout { grid-template-columns: 1fr; }
   .auto-output { min-height: auto; }
+  .contact-strip { flex-direction: column; align-items: flex-start; }
 }
